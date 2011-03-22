@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(File.dirname(__FILE__), '../lib')
+
+require 'awsam'
+
+#
+# Will perform an ssh to an instance ID.
+#
+# Usage: assh <instance ID>
+#
+
+if ARGV.length != 1
+  puts "Usage: assh [user@]<instance ID>"
+  exit 1
+end
+
+user = "root"
+instance_id = ARGV[0]
+
+if instance_id.include?("@")
+  (user, instance_id) = instance_id.split("@")
+end
+
+Awsam::Accounts::load!
+
+acct = Awsam::Accounts::active
+unless acct
+  puts "No active account. Use 'aem use <account name>' to select one"
+  exit 1
+end
+
+inst = Awsam::Ec2::find_instance(acct, instance_id)
+unless inst
+  puts "Unable to locate instance ID #{instance_id}"
+  exit 1
+end
+
+puts "Loging in as #{user} to #{inst[:dns_name]}"
+puts
+
+key = acct.find_key(inst[:ssh_key_name])
+
+if key
+  exec "ssh -i #{key.path} #{user}@#{inst[:dns_name]}"
+else
+  exec "ssh #{user}@#{inst[:dns_name]}"
+end
+
+# Local Variables:
+# mode: ruby
+# End:

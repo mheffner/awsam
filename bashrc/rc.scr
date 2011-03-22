@@ -1,0 +1,123 @@
+
+function __aem_usage()
+{
+	echo "Usage: aem <command> [<args>]"
+	echo
+	echo "Possible commands:"
+	echo
+	echo " add        Add a new AWS account"
+	echo " key <cmd>"
+	echo "     add [<ACCT>]  Add key to ACCT or default to active one"
+	echo " list       List AWS accounts"
+	echo " use NAME   Use the NAME account"
+	echo
+}
+
+function __aem_add()
+{
+
+	raem --create
+}
+
+function __aem_key()
+{
+	 if [ $# -ne 1 ]; then
+		 echo "ERROR: 'key' requires an argument"
+		 echo
+		 __aem_usage
+		 return 1
+	 fi
+
+	 key_cmd="$1"
+	 shift
+
+	 case "$key_cmd" in
+	 add)
+
+		 if [ $# -eq 0 ]; then
+			 if [ -z "$AWSAM_ACTIVE_ACCOUNT" ]; then
+				 echo "No account active"
+				 return 1
+			 fi
+			 ACCT=$AWSAM_ACTIVE_ACCOUNT
+		 else
+			 ACCT="$1"
+		 fi
+
+		 raem --import-key "$ACCT"
+		 return $?
+		 ;;
+	 *)
+		 echo "Unknown key command: $key_cmd"
+		 return 1;
+		 ;;
+	 esac
+}
+
+function __aem_list()
+{
+	raem --list
+}
+
+function __aem_use()
+{
+	ACCT="$1"
+
+	ENV=`raem --environ $ACCT`
+	if [ $? -ne 0 ]; then
+		echo "No such account: $ACCT"
+		return 1
+	fi
+
+	eval $ENV
+	export AWSAM_ACTIVE_ACCOUNT=$ACCT
+
+	return 0
+}
+
+function aem()
+{
+
+         if [ $# -lt 1 ]; then
+		 __aem_usage
+		 return 0
+	 fi
+
+	 if ! `which raem > /dev/null 2>&1`; then
+		 echo "Unable to find 'raem' binary in PATH";
+		 return 1
+	 fi
+
+	 aem_cmd="$1"
+	 shift
+
+	 case "$aem_cmd" in
+	 add)
+		 __aem_add
+		 ;;
+	 key)
+		 __aem_key "$@"
+		 ;;
+	 list)
+		 __aem_list
+		 ;;
+	 use)
+		 if [ $# -ne 1 ]; then
+			 echo "ERROR: 'use' requires an argument"
+			 echo
+			 __aem_usage
+			 return 1
+		 fi
+		 __aem_use "$1"
+		 ;;
+	 *)
+		 echo "Unknown command: $aem_cmd"
+		 return 1
+	 esac
+
+	 return $?
+}
+
+# Local Variables:
+# mode: shell-script
+# End:

@@ -1,0 +1,112 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(File.dirname(__FILE__), '../lib')
+
+require 'awsam'
+
+require 'optparse'
+
+def read_val(prompt, default = nil)
+  begin
+    if default
+      print "#{prompt} [#{default}]: "
+    else
+      print "#{prompt}: "
+    end
+
+    val = gets.chomp
+    if val.empty? && default
+      val = default
+    end
+  end while val.empty?
+
+  val
+end
+
+Awsam::Accounts::load!
+
+optparse = OptionParser.new do|opts|
+  opts.banner = "Usage: raem [options]\n"
+
+  # help
+  opts.on( '-h', '--help', 'Display this screen' ) do
+    puts opts
+    exit
+  end
+
+  opts.on('--create') do
+    puts "Creating a new AWS account...\n"
+    short_name = read_val("Short name")
+    desc = read_val("Description")
+    access_key = read_val("Access key", ENV['AMAZON_ACCESS_KEY_ID'])
+    secret_key = read_val("Secret key", ENV['AMAZON_SECRET_ACCESS_KEY'])
+    ec2_cert = read_val("Cert key file", ENV['EC2_CERT'])
+    ec2_priv_key = read_val("Private key file", ENV['EC2_PRIVATE_KEY'])
+
+    acct = Awsam::Account.new(short_name,
+                              { :description => desc,
+                                :access_key => access_key,
+                                :secret_key => secret_key
+                              })
+    acct.save
+
+    acct.import_certs(ec2_cert, ec2_priv_key)
+  end
+
+  opts.on('--import-key <ACCOUNT>') do |acctname|
+    acct = Awsam::Accounts.find(acctname)
+    unless acct
+      puts "Unable to find account #{acctname}"
+      exit 1
+    end
+
+    display = acct.name + (acct.desc ? " [#{acct.desc}]" : "")
+    puts "Importing a key pair to account #{display}"
+    puts
+
+    key_name = read_val("Key pair name", ENV['AMAZON_SSH_KEY_NAME'])
+    key_file = read_val("Key pair file", ENV['AMAZON_SSH_KEYPAIR'])
+
+    unless File.exist?(key_file)
+      puts "Unable to locate key file: #{key_file}"
+      exit 1
+    end
+
+    acct.import_key(key_name, key_file)
+  end
+
+  opts.on('--list') do
+
+    inuse = ENV['AWSAM_ACTIVE_ACCOUNT']
+    puts "\nAWS Accounts:\n\n"
+
+    accts = Awsam::Accounts::get
+    accts.each_pair do |name, acct|
+      desc = acct.desc ? " [#{acct.desc}]" : ""
+      if acct.keys.length > 0
+        desc += " [#{acct.keys.length} keys]"
+      end
+      pfx = inuse == name ? "=> " : "   "
+      puts "#{pfx}#{name}#{desc}"
+    end
+
+    puts
+  end
+
+  opts.on('--environ <ACCOUNT>') do |acct|
+    accts = Awsam::Accounts::get
+    accts[acct].print_environ
+  end
+
+  opts.on('--init') do
+    Awsam::init_awsam
+  end
+end
+
+optparse.parse!(ARGV)
+
+
+
+# Local Variables:
+# mode: ruby
+# End:

@@ -11,14 +11,17 @@ require 'rake'
 
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
-  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "awsem"
-  gem.homepage = "http://github.com/mheffner/awsem"
+  gem.name = "awsam"
+  gem.homepage = "http://github.com/mheffner/awsam"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{AWS Account Manager}
+  gem.description = %Q{Easily manage multiple AWS accounts.}
   gem.email = "mikeh@fesnel.com"
   gem.authors = ["Mike Heffner"]
+
+  # XXX: why do I need to add these here *and* in Gemfile??
+  gem.add_runtime_dependency 'right_aws', '2.0.0'
+
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
   #  gem.add_runtime_dependency 'jabber4r', '> 0.1'
@@ -47,7 +50,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "awsem #{version}"
+  rdoc.title = "awsam #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
