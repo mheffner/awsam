@@ -86,6 +86,11 @@ Example:
     
     ubuntu@host:~$
 
+## Remove an account
+
+You can remove an account as long as it is not the active one.
+
+    $ aem remove staging
 
 # Long-term Goals
 

@@ -1,4 +1,5 @@
 require 'yaml'
+require 'fileutils'
 
 require 'key'
 require 'utils'
@@ -80,6 +81,12 @@ module Awsam
 
     def import_key(name, path)
       @keys[name] = Key.import(conf_file, name, path)
+    end
+
+    def remove
+      dir = conf_file
+
+      FileUtils.rm_rf(dir)
     end
 
     def save

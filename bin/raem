@@ -34,7 +34,7 @@ optparse = OptionParser.new do|opts|
     exit
   end
 
-  opts.on('--create') do
+  opts.on('--add') do
     puts "Creating a new AWS account...\n"
     short_name = read_val("Short name")
     desc = read_val("Description")
@@ -51,6 +51,16 @@ optparse = OptionParser.new do|opts|
     acct.save
 
     acct.import_certs(ec2_cert, ec2_priv_key)
+  end
+
+  opts.on('--remove <ACCOUNT>') do |acctname|
+    acct = Awsam::Accounts.find(acctname)
+    unless acct
+      puts "Unable to find account #{acctname}"
+      exit 1
+    end
+
+    acct.remove
   end
 
   opts.on('--import-key <ACCOUNT>') do |acctname|

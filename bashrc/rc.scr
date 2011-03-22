@@ -1,28 +1,52 @@
 
+function __aem_active()
+{
+	echo "$AWSAM_ACTIVE_ACCOUNT"
+}
+
 function __aem_usage()
 {
 	echo "Usage: aem <command> [<args>]"
 	echo
 	echo "Possible commands:"
 	echo
-	echo " add        Add a new AWS account"
+	echo " add               Add a new AWS account"
+	echo " remove NAME       Remove the NAME account"
 	echo " key <cmd>"
 	echo "     add [<ACCT>]  Add key to ACCT or default to active one"
-	echo " list       List AWS accounts"
-	echo " use NAME   Use the NAME account"
+	echo " list              List AWS accounts"
+	echo " use NAME          Use the NAME account"
 	echo
 }
 
 function __aem_add()
 {
 
-	raem --create
+	raem --add
+}
+
+function __aem_remove()
+{
+	if [ $# -ne 1 ]; then
+		echo "ERROR: remove requires an argument"
+		echo
+		__aem_usage
+		return 1
+	fi
+
+	ACCT="$1"
+	if [ "$ACCT" = "`__aem_active`" ]; then
+		echo "ERROR: Can not remove the active account"
+		return 1
+	fi
+
+	raem --remove "$ACCT"
 }
 
 function __aem_key()
 {
 	 if [ $# -ne 1 ]; then
-		 echo "ERROR: 'key' requires an argument"
+		 echo "ERROR: key requires an argument"
 		 echo
 		 __aem_usage
 		 return 1
@@ -35,11 +59,11 @@ function __aem_key()
 	 add)
 
 		 if [ $# -eq 0 ]; then
-			 if [ -z "$AWSAM_ACTIVE_ACCOUNT" ]; then
+			 ACCT=`__aem_active`
+			 if [ -z "$ACCT" ]; then
 				 echo "No account active"
 				 return 1
 			 fi
-			 ACCT=$AWSAM_ACTIVE_ACCOUNT
 		 else
 			 ACCT="$1"
 		 fi
@@ -94,6 +118,9 @@ function aem()
 	 case "$aem_cmd" in
 	 add)
 		 __aem_add
+		 ;;
+	 remove)
+		 __aem_remove "$@"
 		 ;;
 	 key)
 		 __aem_key "$@"
