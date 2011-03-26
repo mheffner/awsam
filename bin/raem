@@ -40,13 +40,15 @@ optparse = OptionParser.new do|opts|
     desc = read_val("Description")
     access_key = read_val("Access key", ENV['AMAZON_ACCESS_KEY_ID'])
     secret_key = read_val("Secret key", ENV['AMAZON_SECRET_ACCESS_KEY'])
+    aws_id = read_val("AWS ID", ENV['AMAZON_AWS_ID'])
     ec2_cert = read_val("Cert key file", ENV['EC2_CERT'])
     ec2_priv_key = read_val("Private key file", ENV['EC2_PRIVATE_KEY'])
 
     acct = Awsam::Account.new(short_name,
                               { :description => desc,
                                 :access_key => access_key,
-                                :secret_key => secret_key
+                                :secret_key => secret_key,
+                                :aws_id => aws_id
                               })
     acct.save
 

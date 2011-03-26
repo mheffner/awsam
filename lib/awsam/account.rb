@@ -65,7 +65,8 @@ module Awsam
     def print_environ
       envs = {
         "AMAZON_ACCESS_KEY_ID" => @params[:access_key],
-        "AMAZON_SECRET_ACCESS_KEY" => @params[:secret_key]
+        "AMAZON_SECRET_ACCESS_KEY" => @params[:secret_key],
+        "AMAZON_AWS_ID" => @params[:aws_id]
       }
       envs["EC2_CERT"] = @params[:cert_file] if @params[:cert_file]
       envs["EC2_PRIVATE_KEY"] = @params[:key_file] if @params[:key_file]
