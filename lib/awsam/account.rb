@@ -71,6 +71,12 @@ module Awsam
       envs["EC2_CERT"] = @params[:cert_file] if @params[:cert_file]
       envs["EC2_PRIVATE_KEY"] = @params[:key_file] if @params[:key_file]
 
+      # XXX: Should have method to select key
+      if @keys.length > 0
+        envs["AMAZON_SSH_KEY_NAME"] = @keys.first[1].name
+        envs["AMAZON_SSH_KEYPAIR"] = @keys.first[1].path
+      end
+
       envs.each_pair do |k, v|
         puts "export #{k}=\"#{v}\""
       end
