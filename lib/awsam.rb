@@ -32,7 +32,7 @@ module Awsam
     puts
     puts "Initialized AWS Account Manager"
     puts
-    puts "Add the following to your .bashrc:"
+    puts "Add the following to your $HOME/.bashrc:"
     puts
     puts "  if [ -s $HOME/#{CONF_BASE_DIR}/bash.rc ]; then"
     puts "      source $HOME/#{CONF_BASE_DIR}/bash.rc"
