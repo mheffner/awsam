@@ -94,7 +94,9 @@ when :list
   accts.each_pair do |name, acct|
     desc = acct.desc ? " [#{acct.desc}]" : ""
     if acct.keys.length > 0
-      desc += " [#{acct.keys.length} keys]"
+      names = acct.keys.keys.join(",")
+      plural = "key" + (acct.keys.length > 1 ? "s" : "")
+      desc += " [#{acct.keys.length} #{plural}: #{names}]"
     end
     pfx = inuse == name ? "=> " : "   "
     puts "#{pfx}#{name}#{desc}"
