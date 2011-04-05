@@ -48,7 +48,7 @@ key = acct.find_key(inst[:ssh_key_name])
 
 
 if key
-  exec "ssh -i #{key.path} #{user}@#{inst[:dns_name]}"
+  exec "ssh -i #{key.path} -o IdentitiesOnly=yes #{user}@#{inst[:dns_name]}"
 else
   exec "ssh #{user}@#{inst[:dns_name]}"
 end
