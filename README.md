@@ -51,9 +51,9 @@ The active account will be marked with an arrow.
     
     AWS Accounts:
     
-       prod [Librato Production] [1 keys]
+       prod [Librato Production] [1 key: my-prod-key]
     => staging [Staging account]
-       dev [Librato Development] [1 keys]
+       dev [Librato Development] [1 key: devel-key]
 
 ## Import a key pair
 
@@ -62,6 +62,22 @@ chosen from current environment if set.
 
     $ aem key add my-key-name /path/to/my-keypair.pem
     Imported key pair my-key-name for account staging [Staging account]
+
+## Select a key
+
+This will select an SSH keypair to use from your current account and
+set the environment variables `AMAZON_SSH_KEY_NAME` and
+`AMAZON_SSH_KEY_FILE` appropriately. It will also highlight the key in
+the list output with the '>' character.
+
+    $ aem key use my-key-name
+    
+    $ aem list
+    
+    AWS Accounts:
+    
+       staging [Staging account]
+    => dev [Librato Development] [1 key: >my-key-name]
 
 ## `assh` utility: SSH by instance ID
 
@@ -83,11 +99,42 @@ Example:
     
     ubuntu@host:~$
 
+## Remove a key
+
+You can remove ah SSH key from an account (defaults to the current
+account).
+
+    $ aem key remove --acct prod my-prod-key
+
 ## Remove an account
 
 You can remove an account as long as it is not the active one.
 
     $ aem remove staging
+
+# Environment variables
+
+*AWS Account Manager* sets a variety of environment variables when
+selecting accounts and SSH keypairs. Some of these environment
+variables match the ones used by the Amazon EC2 CLI tools and some our
+unique to AWSAM. It is often convenient to use these environment
+variables in DevOPs scripts in place of hard-coded values -- allowing
+your scripts to be seamlessly used for staging and production
+environments simply by switching the active account with `aem`.
+
+The environment variables set when selecting an account are:
+
+`AMAZON_ACCESS_KEY_ID`: API access key
+`AMAZON_SECRET_ACCESS_KEY`: Secret API access key
+`AMAZON_AWS_ID`: The integer ID of this AWS account
+`EC2_CERT`: Full path to the EC2 certificate PEM file.
+`EC2_PRIVATE_KEY`: Full path to the EC2 private key PEM file.
+
+When selecting an SSH key, the following environment variables are
+set:
+
+`AMAZON_SSH_KEY_NAME`: Name of the keypair.
+`AMAZON_SSH_KEY_FILE`: Full path to the public key PEM file
 
 # Long-term Goals
 
