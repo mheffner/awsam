@@ -42,14 +42,17 @@ def selected_account
   acct
 end
 
+def usage
+  puts "Usage: raem --init"
+  exit
+end
 
 optparse = OptionParser.new do|opts|
   opts.banner = "Usage: raem [options]\n"
 
   # help
   opts.on( '-h', '--help', 'Display this screen' ) do
-    puts opts
-    exit
+    usage
   end
 
   opts.on('--add') do
@@ -98,6 +101,8 @@ optparse = OptionParser.new do|opts|
 end
 
 optparse.parse!(ARGV)
+
+usage unless $cmd
 
 case $cmd
 when :init
