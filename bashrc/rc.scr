@@ -4,6 +4,11 @@ function __aem_active()
 	echo "$AWSAM_ACTIVE_ACCOUNT"
 }
 
+function __aem_active_key()
+{
+	echo "$AWSAM_ACTIVE_KEY"
+}
+
 function __aem_usage()
 {
 	echo "Usage: aem <command> [<args>]"
@@ -16,7 +21,9 @@ function __aem_usage()
 	echo "        +->  add [--acct <ACCT>] KEYNAME KEYFILE"
 	echo "        |           Add key to ACCT or default to active one"
 	echo "        +->  remove [--acct <ACCT>] KEYNAME"
-	echo "                    Remove key from ACCT or default"
+	echo "        |           Remove key from ACCT or default"
+	echo "        +->  use KEYNAME"
+	echo "                    Use the KEYNAME from the current account"
 	echo "  list              List AWS accounts"
 	echo "  use NAME          Use the NAME account"
 	echo
@@ -60,7 +67,7 @@ function __aem_remove()
 	fi
 
 	local ACCT="$1"
-	if [ "$ACCT" = "`__aem_active`" ]; then
+	if [ "$ACCT" = "$(__aem_active)" ]; then
 		__aem_fail "Can not remove the active account"
 		return 1
 	fi
@@ -101,7 +108,7 @@ function __aem_key_add()
 	fi
 
 	if [ -z "$ACCT" ]; then
-		ACCT=`__aem_active`
+		ACCT=$(__aem_active)
 		if [ -z "$ACCT" ]; then
 			__aem_fail "No account specified and none active."
 			return 1
@@ -140,14 +147,47 @@ function __aem_key_remove()
 	fi
 
 	if [ -z "$ACCT" ]; then
-		ACCT=`__aem_active`
+		ACCT=$(__aem_active)
 		if [ -z "$ACCT" ]; then
 			__aem_fail "No account specified and none active."
 			return 1
 		fi
 	fi
 
+	# Unset active key
+	if [ "$KEYNAME" = "$(__aem_active_key)" ]; then
+		unset AWSAM_ACTIVE_KEY
+	fi
+
 	raem --remove-key --account "$ACCT" --keyname "$KEYNAME"
+}
+
+function __aem_key_use()
+{
+	if [ $# -lt 1 ]; then
+		__aem_fusage "Must specify keyname"
+		return 1
+	fi
+
+	local ACCT
+
+	ACCT=$(__aem_active)
+	if [ -z "$ACCT" ]; then
+		__aem_fail "Must select an account first"
+		return 1
+	fi
+
+	local KEYNAME="$1"
+	local ENV
+
+	ENV=$(raem --environ-key --account $ACCT --keyname $KEYNAME)
+	if [ $? -ne 0 ]; then
+		__aem_fail "Failed to select key $KEYNAME"
+		return 1
+	fi
+
+	eval $ENV
+	export AWSAM_ACTIVE_KEY=$KEYNAME
 }
 
 function __aem_key()
@@ -169,6 +209,10 @@ function __aem_key()
 		 __aem_key_remove "$@"
 		 return $?
 		 ;;
+	 use)
+		 __aem_key_use "$@"
+		 return $?
+		 ;;
 	 *)
 		 echo "Unknown key command: $key_cmd"
 		 return 1;
@@ -184,7 +228,9 @@ function __aem_list()
 function __aem_use()
 {
 	local ACCT="$1"
-	local ENV=`raem --environ --account $ACCT`
+	local ENV
+
+	ENV=$(raem --environ --account $ACCT)
 	if [ $? -ne 0 ]; then
 		__aem_fail "No such account: $ACCT"
 		return 1
@@ -192,6 +238,9 @@ function __aem_use()
 
 	eval $ENV
 	export AWSAM_ACTIVE_ACCOUNT=$ACCT
+
+	# Clear active key
+	unset AWSAM_ACTIVE_KEY
 
 	return 0
 }

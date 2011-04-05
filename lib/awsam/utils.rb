@@ -8,5 +8,12 @@ module Awsam
         yield(name)
       end
     end
+
+    # Print the appropriate environment variables set commands for bash
+    def self::bash_environ(envs)
+      envs.each_pair do |k, v|
+        puts "export #{k}=\"#{v}\""
+      end
+    end
   end
 end

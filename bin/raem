@@ -28,6 +28,21 @@ Awsam::Accounts::load!
 $options = {}
 $cmd = nil
 
+def selected_account
+  if !$options[:account] || $options[:account].empty?
+    puts "Command requires an account"
+    exit 1
+  end
+
+  acct = Awsam::Accounts.find($options[:account])
+  unless acct
+    puts "Unable to find account #{$options[:account]}"
+    exit 1
+  end
+  acct
+end
+
+
 optparse = OptionParser.new do|opts|
   opts.banner = "Usage: raem [options]\n"
 
@@ -73,6 +88,10 @@ optparse = OptionParser.new do|opts|
     $cmd = :environ
   end
 
+  opts.on('--environ-key') do
+    $cmd = :environ_key
+  end
+
   opts.on('--init') do
     $cmd = :init
   end
@@ -80,25 +99,22 @@ end
 
 optparse.parse!(ARGV)
 
-if [:remove_account, :import_key, :remove_key, :environ].include?($cmd) &&
-    !$options[:account]
-  puts "Command requires account"
-  exit 1
-end
-
 case $cmd
 when :init
   Awsam::init_awsam
 
 when :list
   inuse = ENV['AWSAM_ACTIVE_ACCOUNT']
+  inusekey = ENV['AWSAM_ACTIVE_KEY']
   puts "\nAWS Accounts:\n\n"
 
   accts = Awsam::Accounts::get
   accts.each_pair do |name, acct|
     desc = acct.desc ? " [#{acct.desc}]" : ""
     if acct.keys.length > 0
-      names = acct.keys.keys.join(",")
+      names = acct.keys.keys.collect{ |k|
+        (inuse == name && inusekey == k) ? ">#{k}" : k
+      }.join(",")
       plural = "key" + (acct.keys.length > 1 ? "s" : "")
       desc += " [#{acct.keys.length} #{plural}: #{names}]"
     end
@@ -109,8 +125,23 @@ when :list
   puts
 
 when :environ
-  accts = Awsam::Accounts::get
-  accts[$options[:account]].print_environ
+  selected_account.print_environ
+
+when :environ_key
+  unless $options[:keyname]
+    puts "Option requires a keyname"
+    exit 1
+  end
+
+  acct = selected_account
+
+  k = acct.find_key($options[:keyname])
+  unless k
+    puts "Could not find key #{$options[:keyname]} in active account"
+    exit 1
+  end
+
+  k.print_environ
 
 when :add_account
   puts "Creating a new AWS account...\n"
@@ -133,13 +164,7 @@ when :add_account
   acct.import_certs(ec2_cert, ec2_priv_key)
 
 when :remove_account
-  acct = Awsam::Accounts.find($options[:account])
-  unless acct
-    puts "Unable to find account #{$options[:account]}"
-    exit 1
-  end
-
-  acct.remove
+  selected_account.remove
 
 when :import_key
   unless $options[:keyname] && $options[:keyfile]
@@ -147,11 +172,7 @@ when :import_key
     exit 1
   end
 
-  acct = Awsam::Accounts.find($options[:account])
-  unless acct
-    puts "Unable to find account #{$options[:account]}"
-    exit 1
-  end
+  acct = selected_account
 
   display = acct.name + (acct.desc ? " [#{acct.desc}]" : "")
 
@@ -169,12 +190,7 @@ when :remove_key
     exit 1
   end
 
-  acct = Awsam::Accounts.find($options[:account])
-  unless acct
-    puts "Unable to find account #{$options[:account]}"
-    exit 1
-  end
-
+  acct = selected_account
   unless acct.remove_key($options[:keyname])
     puts "Failed to remove key #{$options[:keyname]}"
     exit 1

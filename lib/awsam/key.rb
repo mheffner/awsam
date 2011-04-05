@@ -32,6 +32,15 @@ module Awsam
       dir
     end
 
+    def print_environ
+      envs = {
+        "AMAZON_SSH_KEY_NAME" => @name,
+        "AMAZON_SSH_KEY_FILE" => self.path
+      }
+
+      Utils::bash_environ(envs)
+    end
+
     def remove
       FileUtils.rm(self.path)
       FileUtils.rmdir(@dir)
