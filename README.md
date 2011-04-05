@@ -60,11 +60,8 @@ The active account will be marked with an arrow.
 Add a key to the default account, or the specified account. Defaults
 chosen from current environment if set.
 
-    $ aem key add
-    Importing a key pair to account staging [Staging account]
-    
-    Key pair name [my-keypair]: new-keypair
-    Key pair file [/path/to/my-keypair.pem]: keypair.pem
+    $ aem key add my-key-name /path/to/my-keypair.pem
+    Imported key pair my-key-name for account staging [Staging account]
 
 ## `assh` utility: SSH by instance ID
 
