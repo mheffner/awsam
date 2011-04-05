@@ -90,6 +90,14 @@ module Awsam
       @keys[name] = Key.import(conf_file, name, path)
     end
 
+    def remove_key(name)
+      return false unless @keys.has_key?(name)
+
+      @keys[name].remove
+      @keys.delete(name)
+      true
+    end
+
     def remove
       dir = conf_file
 

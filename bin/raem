@@ -53,6 +53,10 @@ optparse = OptionParser.new do|opts|
     $cmd = :import_key
   end
 
+  opts.on('--remove-key') do
+    $cmd = :remove_key
+  end
+
   opts.on('--keyname <KEYNAME>') do |keyname|
     $options[:keyname] = keyname
   end
@@ -76,7 +80,7 @@ end
 
 optparse.parse!(ARGV)
 
-if [:remove_account, :import_key, :environ].include?($cmd) &&
+if [:remove_account, :import_key, :remove_key, :environ].include?($cmd) &&
     !$options[:account]
   puts "Command requires account"
   exit 1
@@ -158,6 +162,23 @@ when :import_key
 
   ret = acct.import_key($options[:keyname], $options[:keyfile])
   puts "Imported key pair #{$options[:keyname]} for account #{display}"
+
+when :remove_key
+  unless $options[:keyname]
+    puts "Requires keyname!"
+    exit 1
+  end
+
+  acct = Awsam::Accounts.find($options[:account])
+  unless acct
+    puts "Unable to find account #{$options[:account]}"
+    exit 1
+  end
+
+  unless acct.remove_key($options[:keyname])
+    puts "Failed to remove key #{$options[:keyname]}"
+    exit 1
+  end
 end
 
 

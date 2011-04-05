@@ -14,7 +14,9 @@ function __aem_usage()
 	echo "  remove NAME       Remove the NAME account"
 	echo "  key <cmd>"
 	echo "        +->  add [--acct <ACCT>] KEYNAME KEYFILE"
-	echo "                    Add key to ACCT or default to active one"
+	echo "        |           Add key to ACCT or default to active one"
+	echo "        +->  remove [--acct <ACCT>] KEYNAME"
+	echo "                    Remove key from ACCT or default"
 	echo "  list              List AWS accounts"
 	echo "  use NAME          Use the NAME account"
 	echo
@@ -23,7 +25,7 @@ function __aem_usage()
 # Fail with error message and print usage
 function __aem_fusage()
 {
-	MSG="$*"
+	local MSG="$*"
 
 	if [ -n "$MSG" ]; then
 		printf "ERROR: $MSG\n" >&2
@@ -37,7 +39,7 @@ function __aem_fusage()
 # Just print message to standard output
 function __aem_fail()
 {
-	MSG="$*"
+	local MSG="$*"
 
 	if [ -n "$MSG" ]; then
 		printf "ERROR: $MSG\n" >&2
@@ -57,7 +59,7 @@ function __aem_remove()
 		return 1
 	fi
 
-	ACCT="$1"
+	local ACCT="$1"
 	if [ "$ACCT" = "`__aem_active`" ]; then
 		__aem_fail "Can not remove the active account"
 		return 1
@@ -110,6 +112,44 @@ function __aem_key_add()
 	    --keyfile "$KEYFILE"
 }
 
+function __aem_key_remove()
+{
+	local KEYNAME=""
+	local ACCT=""
+
+	while [ $# -gt 0 ]; do
+		if [ "$1" = "--acct" ]; then
+			shift
+			if [ $# -lt 1 ]; then
+				__aem_fusage "--acct requires argument"
+				return 1
+			fi
+
+			ACCT="$1"
+			shift
+			continue
+		fi
+
+		KEYNAME="$1"
+		shift
+	done
+
+	if [ -z "$KEYNAME" ]; then
+		__aem_fusage "Must specify key to remove"
+		return 1
+	fi
+
+	if [ -z "$ACCT" ]; then
+		ACCT=`__aem_active`
+		if [ -z "$ACCT" ]; then
+			__aem_fail "No account specified and none active."
+			return 1
+		fi
+	fi
+
+	raem --remove-key --account "$ACCT" --keyname "$KEYNAME"
+}
+
 function __aem_key()
 {
 	 if [ $# -lt 1 ]; then
@@ -117,12 +157,16 @@ function __aem_key()
 		 return 1
 	 fi
 
-	 key_cmd="$1"
+	 local key_cmd="$1"
 	 shift
 
 	 case "$key_cmd" in
 	 add)
 		 __aem_key_add "$@"
+		 return $?
+		 ;;
+	 remove)
+		 __aem_key_remove "$@"
 		 return $?
 		 ;;
 	 *)
@@ -139,9 +183,8 @@ function __aem_list()
 
 function __aem_use()
 {
-	ACCT="$1"
-
-	ENV=`raem --environ --account $ACCT`
+	local ACCT="$1"
+	local ENV=`raem --environ --account $ACCT`
 	if [ $? -ne 0 ]; then
 		__aem_fail "No such account: $ACCT"
 		return 1
@@ -166,7 +209,7 @@ function aem()
 		 return 1
 	 fi
 
-	 aem_cmd="$1"
+	 local aem_cmd="$1"
 	 shift
 
 	 case "$aem_cmd" in
