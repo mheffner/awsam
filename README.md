@@ -20,6 +20,15 @@
               source $HOME/.awsam/bash.rc
           fi
 
+# Updating
+
+1. Update repo (fetch && merge)
+
+2. Run `raem --init`. Ignore instructions to setup .bashrc if
+   you've already done so.
+
+3. Close and reopen your shell or `source ~/.bashrc`.
+
 # Use
 
 ## Add an account
