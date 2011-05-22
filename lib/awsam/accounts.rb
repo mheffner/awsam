@@ -1,3 +1,5 @@
+require 'fileutils'
+
 require 'account'
 require 'utils'
 
@@ -36,6 +38,15 @@ module Awsam
 
     def self.find(name)
       @@accounts[name]
+    end
+
+    def self.default
+      link = File.join(Awsam::get_accts_dir, Awsam::DEFAULT_LINK_NAME)
+      if File.exist?(link)
+        return find(File.readlink(link))
+      else
+        return nil
+      end
     end
   end
 end

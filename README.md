@@ -52,9 +52,15 @@ environment variables.
 
     $ aem use staging
 
+When selecting an account you can mark it as the default account with
+the `--default` option:
+
+    $ aem use --default staging
+
 ## List accounts
 
-The active account will be marked with an arrow.
+The active account will be marked with an arrow. The default, if set,
+will be marked with an asterisk.
 
     $ aem list
     
@@ -62,7 +68,8 @@ The active account will be marked with an arrow.
     
        prod [Librato Production] [1 key: my-prod-key]
     => staging [Staging account]
-       dev [Librato Development] [1 key: devel-key]
+      *dev [Librato Development] [1 key: devel-key]
+
 
 ## Import a key pair
 

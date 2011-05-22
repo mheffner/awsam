@@ -10,6 +10,7 @@ require 'ec2'
 module Awsam
   CONF_BASE_DIR = ".awsam"
   CONF_DIR = File.join(ENV['HOME'], CONF_BASE_DIR)
+  DEFAULT_LINK_NAME = ".default"
 
   def self.get_conf_dir
     FileUtils.mkdir(CONF_DIR) unless File.exist?(CONF_DIR)

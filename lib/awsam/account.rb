@@ -9,6 +9,10 @@ module Awsam
     attr_reader :name, :keys
 
     def initialize(name, params)
+      if name == Awsam::DEFAULT_LINK_NAME
+        # We require this for our default account symlink
+        raise "Can not name an account: #{Awsam::DEFAULT_LINK_NAME}"
+      end
       @name = name
       @params = params
       load_keys
@@ -74,6 +78,26 @@ module Awsam
       Utils::bash_environ(envs)
     end
 
+    def set_default
+      base = Awsam::get_accts_dir()
+      link = File.join(base, Awsam::DEFAULT_LINK_NAME)
+      if File.exist?(link)
+        begin
+          FileUtils.rm(link)
+        rescue => err
+          $stderr.puts "Failed to remove link #{link}: #{err.message}"
+          return false
+        end
+      end
+      begin
+        FileUtils.ln_s(@name, link)
+      rescue => err
+        $stderr.puts "Failed to create symlink: #{err.message}"
+        return false
+      end
+      true
+    end
+
     def find_key(name)
       @keys[name]
     end
@@ -92,12 +116,17 @@ module Awsam
 
     def remove
       dir = conf_file
+      acct = Awsam::default_account
+      if acct && acct.name == @name
+        # Need to remove default link if we're the default account
+        FileUtils.rm File.join(Awsam::get_accts_dir, Awsam::DEFAULT_LINK_NAME)
+      end
 
       FileUtils.rm_rf(dir)
     end
 
     def save
-      dir = File.join(Awsam::get_accts_dir(), @name)
+      dir = File.join(Awsam::get_accts_dir, @name)
       FileUtils.mkdir(dir) unless File.exist?(dir)
 
       File.open(File.join(dir, 'conf.yml'), "w", 0600) do |out|

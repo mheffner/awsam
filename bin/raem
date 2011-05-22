@@ -6,6 +6,10 @@ require 'awsam'
 
 require 'optparse'
 
+def err(*args)
+  $stderr.puts *args
+end
+
 def read_val(prompt, default = nil)
   begin
     if default
@@ -28,15 +32,15 @@ Awsam::Accounts::load!
 $options = {}
 $cmd = nil
 
-def selected_account
+def selected_account(default_fallback = false)
   if !$options[:account] || $options[:account].empty?
-    puts "Command requires an account"
+    err "Command requires an account"
     exit 1
   end
 
   acct = Awsam::Accounts.find($options[:account])
   unless acct
-    puts "Unable to find account #{$options[:account]}"
+    err "Unable to find account #{$options[:account]}"
     exit 1
   end
   acct
@@ -98,6 +102,14 @@ optparse = OptionParser.new do|opts|
   opts.on('--init') do
     $cmd = :init
   end
+
+  opts.on('--print-default-acct') do
+    $cmd = :print_default_acct
+  end
+
+  opts.on('--default') do
+    $options[:set_default] = true
+  end
 end
 
 optparse.parse!(ARGV)
@@ -113,6 +125,7 @@ when :list
   inusekey = ENV['AWSAM_ACTIVE_KEY']
   puts "\nAWS Accounts:\n\n"
 
+  default = Awsam::Accounts::default
   accts = Awsam::Accounts::get
   accts.each_pair do |name, acct|
     desc = acct.desc ? " [#{acct.desc}]" : ""
@@ -123,18 +136,33 @@ when :list
       plural = "key" + (acct.keys.length > 1 ? "s" : "")
       desc += " [#{acct.keys.length} #{plural}: #{names}]"
     end
-    pfx = inuse == name ? "=> " : "   "
-    puts "#{pfx}#{name}#{desc}"
+    pfx = inuse == name ? "=>" : "  "
+    dfltmark = (default && default.name == name) ? "*" : " "
+    puts "#{pfx}#{dfltmark}#{name}#{desc}"
   end
 
   puts
 
+when :print_default_acct
+  default = Awsam::Accounts::default
+  exit 1 unless default
+  puts default.name
+
 when :environ
-  selected_account.print_environ
+  acct = selected_account
+  acct.print_environ
+
+  if $options[:set_default]
+    r = acct.set_default
+    unless r
+      err "Failed to set account #{acct.name} as the default"
+      exit 1
+    end
+  end
 
 when :environ_key
   unless $options[:keyname]
-    puts "Option requires a keyname"
+    err "Option requires a keyname"
     exit 1
   end
 
@@ -142,7 +170,7 @@ when :environ_key
 
   k = acct.find_key($options[:keyname])
   unless k
-    puts "Could not find key #{$options[:keyname]} in active account"
+    err "Could not find key #{$options[:keyname]} in active account"
     exit 1
   end
 
@@ -173,7 +201,7 @@ when :remove_account
 
 when :import_key
   unless $options[:keyname] && $options[:keyfile]
-    puts "Requires keyname and keyfile!"
+    err "Requires keyname and keyfile!"
     exit 1
   end
 
@@ -182,22 +210,22 @@ when :import_key
   display = acct.name + (acct.desc ? " [#{acct.desc}]" : "")
 
   unless File.exist?($options[:keyfile])
-    puts "Unable to locate key file: #{$options[:keyfile]}"
+    err "Unable to locate key file: #{$options[:keyfile]}"
     exit 1
   end
 
   ret = acct.import_key($options[:keyname], $options[:keyfile])
-  puts "Imported key pair #{$options[:keyname]} for account #{display}"
+  err "Imported key pair #{$options[:keyname]} for account #{display}"
 
 when :remove_key
   unless $options[:keyname]
-    puts "Requires keyname!"
+    err "Requires keyname!"
     exit 1
   end
 
   acct = selected_account
   unless acct.remove_key($options[:keyname])
-    puts "Failed to remove key #{$options[:keyname]}"
+    err "Failed to remove key #{$options[:keyname]}"
     exit 1
   end
 end

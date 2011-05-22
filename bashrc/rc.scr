@@ -25,7 +25,9 @@ function __aem_usage()
 	echo "        +->  use KEYNAME"
 	echo "                    Use the KEYNAME from the current account"
 	echo "  list              List AWS accounts"
-	echo "  use NAME          Use the NAME account"
+	echo "  use [--default] NAME"
+        echo "                    Use the NAME account. Set as default if"
+	echo "                    the option --default is specified"
 	echo
 }
 
@@ -227,10 +229,36 @@ function __aem_list()
 
 function __aem_use()
 {
-	local ACCT="$1"
+	local ACCT
 	local ENV
+	local SETDEFAULT=0
 
-	ENV=$(raem --environ --account $ACCT)
+	while [ $# -gt 0 ]; do
+		if [ "$1" == "--default" ]; then
+			SETDEFAULT=1
+			shift
+			continue
+		fi
+
+		if [ -n "$ACCT" ]; then
+			__aem_fusage "Invalid arguments to use command"
+			return 1
+		fi
+
+		ACCT="$1"
+		shift
+	done
+
+	if [ -z "$ACCT" ]; then
+		__aem_fusage "use command requires account name"
+		return 1
+	fi
+
+	if [ $SETDEFAULT -eq 0 ]; then
+		ENV=$(raem --environ --account $ACCT)
+	else
+		ENV=$(raem --environ --default --account $ACCT)
+	fi
 	if [ $? -ne 0 ]; then
 		__aem_fail "No such account: $ACCT"
 		return 1
@@ -275,11 +303,7 @@ function aem()
 		 __aem_list
 		 ;;
 	 use)
-		 if [ $# -ne 1 ]; then
-			 __aem_fusage "Use cmd requires an argument"
-			 return 1
-		 fi
-		 __aem_use "$1"
+		 __aem_use "$@"
 		 ;;
 	 *)
 		 __aem_fusage "Unknown command: $aem_cmd"
@@ -288,6 +312,12 @@ function aem()
 
 	 return $?
 }
+
+# Check for default account
+DEFAULT=$(raem --print-default-acct)
+if [ $? -eq 0 ]; then
+	__aem_use "$DEFAULT"
+fi
 
 # Local Variables:
 # mode: shell-script
