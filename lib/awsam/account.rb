@@ -78,26 +78,6 @@ module Awsam
       Utils::bash_environ(envs)
     end
 
-    def set_default
-      base = Awsam::get_accts_dir()
-      link = File.join(base, Awsam::DEFAULT_LINK_NAME)
-      if File.exist?(link)
-        begin
-          FileUtils.rm(link)
-        rescue => err
-          $stderr.puts "Failed to remove link #{link}: #{err.message}"
-          return false
-        end
-      end
-      begin
-        FileUtils.ln_s(@name, link)
-      rescue => err
-        $stderr.puts "Failed to create symlink: #{err.message}"
-        return false
-      end
-      true
-    end
-
     def find_key(name)
       @keys[name]
     end
@@ -109,17 +89,34 @@ module Awsam
     def remove_key(name)
       return false unless @keys.has_key?(name)
 
+      dflt = get_default_key
+      Utils::remove_default(conf_file('keys')) if dflt && dflt.name == name
       @keys[name].remove
       @keys.delete(name)
       true
     end
 
+    def set_default_key(keyname)
+      key = @keys[keyname]
+      unless key
+        $stderr.puts "No key named #{keyname}"
+        return false
+      end
+
+      Utils::set_default(conf_file('keys'), keyname)
+    end
+
+    def get_default_key
+      dflt = Utils::get_default(conf_file('keys'))
+      @keys[dflt]
+    end
+
     def remove
       dir = conf_file
-      acct = Awsam::default_account
+      acct = Awsam::Accounts::get_default
       if acct && acct.name == @name
         # Need to remove default link if we're the default account
-        FileUtils.rm File.join(Awsam::get_accts_dir, Awsam::DEFAULT_LINK_NAME)
+        Awsam::Accounts::remove_default
       end
 
       FileUtils.rm_rf(dir)

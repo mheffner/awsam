@@ -40,7 +40,6 @@ def selected_account(default_fallback = false)
 
   acct = Awsam::Accounts.find($options[:account])
   unless acct
-    err "Unable to find account #{$options[:account]}"
     exit 1
   end
   acct
@@ -107,6 +106,10 @@ optparse = OptionParser.new do|opts|
     $cmd = :print_default_acct
   end
 
+  opts.on('--print-default-key') do
+    $cmd = :print_default_key
+  end
+
   opts.on('--default') do
     $options[:set_default] = true
   end
@@ -125,13 +128,16 @@ when :list
   inusekey = ENV['AWSAM_ACTIVE_KEY']
   puts "\nAWS Accounts:\n\n"
 
-  default = Awsam::Accounts::default
+  default = Awsam::Accounts::get_default
   accts = Awsam::Accounts::get
   accts.each_pair do |name, acct|
     desc = acct.desc ? " [#{acct.desc}]" : ""
     if acct.keys.length > 0
+      dfltkey = acct.get_default_key
       names = acct.keys.keys.collect{ |k|
-        (inuse == name && inusekey == k) ? ">#{k}" : k
+        pfx1 = (inuse == name && inusekey == k) ? ">" : ""
+        pfx2 = (dfltkey && dfltkey.name == k) ? "*" : ""
+        "#{pfx1}#{pfx2}#{k}"
       }.join(",")
       plural = "key" + (acct.keys.length > 1 ? "s" : "")
       desc += " [#{acct.keys.length} #{plural}: #{names}]"
@@ -144,21 +150,28 @@ when :list
   puts
 
 when :print_default_acct
-  default = Awsam::Accounts::default
+  default = Awsam::Accounts::get_default
+  exit 1 unless default
+  puts default.name
+
+when :print_default_key
+  acct = selected_account
+  default = acct.get_default_key
   exit 1 unless default
   puts default.name
 
 when :environ
   acct = selected_account
-  acct.print_environ
 
   if $options[:set_default]
-    r = acct.set_default
+    r = Awsam::Accounts::set_default(acct.name)
     unless r
       err "Failed to set account #{acct.name} as the default"
       exit 1
     end
   end
+
+  acct.print_environ
 
 when :environ_key
   unless $options[:keyname]
@@ -172,6 +185,14 @@ when :environ_key
   unless k
     err "Could not find key #{$options[:keyname]} in active account"
     exit 1
+  end
+
+  if $options[:set_default]
+    r = acct.set_default_key(k.name)
+    unless r
+      err "Failed to set key #{k.name} as the default"
+      exit 1
+    end
   end
 
   k.print_environ

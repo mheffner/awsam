@@ -16,15 +16,21 @@ function __aem_usage()
 	echo "Possible commands:"
 	echo
 	echo "  add               Add a new AWS account"
+	echo
 	echo "  remove NAME       Remove the NAME account"
+	echo
 	echo "  key <cmd>"
 	echo "        +->  add [--acct <ACCT>] KEYNAME KEYFILE"
 	echo "        |           Add key to ACCT or default to active one"
 	echo "        +->  remove [--acct <ACCT>] KEYNAME"
 	echo "        |           Remove key from ACCT or default"
-	echo "        +->  use KEYNAME"
+	echo "        +->  use [--default] KEYNAME"
 	echo "                    Use the KEYNAME from the current account"
+	echo "                    Will set the key as the default for the"
+	echo "                    account if the --default option is set"
+	echo
 	echo "  list              List AWS accounts"
+	echo
 	echo "  use [--default] NAME"
         echo "                    Use the NAME account. Set as default if"
 	echo "                    the option --default is specified"
@@ -172,6 +178,29 @@ function __aem_key_use()
 	fi
 
 	local ACCT
+	local SETDEFAULT=0
+	local KEYNAME=""
+
+	while [ $# -gt 0 ]; do
+		if [ "$1" == "--default" ]; then
+			SETDEFAULT=1
+			shift
+			continue
+		fi
+
+		if [ -n "$KEYNAME" ]; then
+			__aem_fusage "Invalid argument to key use command"
+			return 1
+		fi
+
+		KEYNAME="$1"
+		shift
+	done
+
+	if [ -z "$KEYNAME" ]; then
+		__aem_fusage "Must specify key name"
+		return 1
+	fi
 
 	ACCT=$(__aem_active)
 	if [ -z "$ACCT" ]; then
@@ -179,10 +208,13 @@ function __aem_key_use()
 		return 1
 	fi
 
-	local KEYNAME="$1"
 	local ENV
-
-	ENV=$(raem --environ-key --account $ACCT --keyname $KEYNAME)
+	if [ $SETDEFAULT -ne 0 ]; then
+		# Will set the key as the default
+		ENV=$(raem --environ-key --account $ACCT --default --keyname $KEYNAME)
+	else
+		ENV=$(raem --environ-key --account $ACCT --keyname $KEYNAME)
+	fi
 	if [ $? -ne 0 ]; then
 		__aem_fail "Failed to select key $KEYNAME"
 		return 1
@@ -269,6 +301,12 @@ function __aem_use()
 
 	# Clear active key
 	unset AWSAM_ACTIVE_KEY
+
+	# Check if there is a default key
+	DEFAULT=$(raem --account $ACCT --print-default-key)
+	if [ $? -eq 0 ]; then
+		aem key use "$DEFAULT"
+	fi
 
 	return 0
 }

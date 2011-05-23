@@ -15,5 +15,36 @@ module Awsam
         puts "export #{k}=\"#{v}\""
       end
     end
+
+    # Set the default resource with link directory and target
+    def self.set_default(basedir, target)
+      link = File.join(basedir, Awsam::DEFAULT_LINK_NAME)
+      if File.exist?(link)
+        begin
+          FileUtils.rm(link)
+        rescue => err
+          $stderr.puts "Failed to remove link #{link}: #{err.message}"
+          return false
+        end
+      end
+      begin
+        FileUtils.ln_s(target, link)
+      rescue => err
+        $stderr.puts "Failed to create symlink: #{err.message}"
+        return false
+      end
+      true
+    end
+
+    # Get the target of the default link
+    def self.get_default(basedir)
+      link = File.join(basedir, Awsam::DEFAULT_LINK_NAME)
+      File.exist?(link) ? File.readlink(link) : nil
+    end
+
+    # Remove the default link
+    def self.remove_default(basedir)
+      FileUtils.rm File.join(basedir, Awsam::DEFAULT_LINK_NAME)
+    end
   end
 end

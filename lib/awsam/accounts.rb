@@ -40,13 +40,22 @@ module Awsam
       @@accounts[name]
     end
 
-    def self.default
-      link = File.join(Awsam::get_accts_dir, Awsam::DEFAULT_LINK_NAME)
-      if File.exist?(link)
-        return find(File.readlink(link))
-      else
-        return nil
+    def self.set_default(name)
+      unless find(name)
+        $stderr.puts "Failed to find account #{name}"
+        return false
       end
+
+      Utils::set_default(Awsam::get_accts_dir, name)
+    end
+
+    def self.get_default
+      dflt = Utils::get_default(Awsam::get_accts_dir)
+      dflt ? find(dflt) : nil
+    end
+
+    def self.remove_default
+      Utils::remove_default(Awsam::get_accts_dir)
     end
   end
 end

@@ -95,6 +95,14 @@ the list output with the '>' character.
        staging [Staging account]
     => dev [Librato Development] [1 key: >my-key-name]
 
+You can also define a default key for each account that will
+automatically be selected when the account is chosen. Just use the
+`--default` option when selecting a key to set a default key. Picking
+a default will place an asterisk next to the key name in the `aem
+list` output.
+
+    $ aem key use --default my-key-name
+
 ## `assh` utility: SSH by instance ID
 
 Instance IDs will be looked up using the current account details. If

@@ -9,6 +9,10 @@ module Awsam
     def initialize(keydir)
       @name = File.basename(keydir)
       @dir = keydir
+      if @name == Awsam::DEFAULT_LINK_NAME
+        # This is required for the default link
+        raise "Can not name a key: #{Awsam::DEFAULT_LINK_NAME}"
+      end
     end
 
     def path
