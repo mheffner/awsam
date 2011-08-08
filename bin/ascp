@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(File.dirname(__FILE__), '../lib')
+
+require 'awsam'
+
+#
+# Will perform an scp to/from an instance ID.
+#
+#
+# Usage: ascp [user@]<instance ID>:remote-file local-file
+#        ascp local-file [user@]<instance ID>:remote-file
+
+if ARGV.length == 0
+  puts 'Usage: ascp [user@]<instance ID>:remote-file local-file'
+  puts '       ascp local-file [user@]<instance ID>:remote-file'
+  exit 1
+end
+
+user = "root"
+
+args = ARGV.clone
+
+Awsam::Accounts::load!
+acct = Awsam::Accounts::active
+unless acct
+  puts "No active account. Use 'aem use <account name>' to select one"
+  exit 1
+end
+
+keyfile = nil
+0.upto(args.length - 1) do |i|
+  m = args[i].match(/([a-zA-Z0-9_]{1,}@){0,1}(i-[0-9a-f]{8}):/)
+  if m
+    user = m[1]
+    instance_id = m[2]
+
+    inst = Awsam::Ec2::find_instance(acct, instance_id)
+    unless inst
+      puts "Unable to locate instance ID #{instance_id}"
+      exit 1
+    end
+
+    if inst[:aws_state] != "running"
+      puts "Instance #{instance_id} is not running, it's #{inst[:aws_state]}"
+      exit 1
+    end
+
+    args[i] = args[i].gsub(instance_id, inst[:dns_name])
+
+    key = acct.find_key(inst[:ssh_key_name])
+    keyfile = key.path if key
+    break
+  end
+end
+
+if keyfile
+  args.unshift('-i', keyfile, '-o', 'IdentitiesOnly=yes')
+end
+
+exec "scp #{args.join(" ")}"
+
+# Local Variables:
+# mode: ruby
+# End:

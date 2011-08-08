@@ -123,6 +123,17 @@ Example:
     
     ubuntu@host:~$
 
+## `ascp` utility: SCP by instance ID
+
+Instance IDs will be looked up using the current account details. If
+the instance's keypair name exists, that keyfile will be used as the
+identity file to scp.
+
+Usage:
+
+    $ ascp [user@]<instance ID>:remote-file local-file
+    $ ascp local-file [user@]<instance ID>:remote-file
+
 ## Remove a key
 
 You can remove ah SSH key from an account (defaults to the current
