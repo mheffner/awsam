@@ -103,7 +103,7 @@ list` output.
 
     $ aem key use --default my-key-name
 
-## `assh` utility: SSH by instance ID
+## assh utility: SSH by instance ID
 
 Instance IDs will be looked up using the current account details. If
 the instance's keypair name exists, that keyfile will be used as the
@@ -123,7 +123,7 @@ Example:
     
     ubuntu@host:~$
 
-## `ascp` utility: SCP by instance ID
+## ascp utility: SCP by instance ID
 
 Instance IDs will be looked up using the current account details. If
 the instance's keypair name exists, that keyfile will be used as the
