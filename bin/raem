@@ -2,7 +2,12 @@
 
 $:.unshift File.join(File.dirname(__FILE__), '../lib')
 
-require 'awsam'
+begin
+  require 'awsam'
+rescue LoadError => err
+  $stderr.puts "ERROR: Unable to load AWSAM gem dependencies: #{err.message}"
+  exit 1
+end
 
 require 'optparse'
 
