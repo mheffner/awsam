@@ -48,7 +48,7 @@ if inst[:aws_state] != "running"
   exit 1
 end
 
-puts "Loging in as #{user} to #{inst[:dns_name]}"
+puts "Logging in as #{user} to #{inst[:dns_name]}"
 puts
 
 key = acct.find_key(inst[:ssh_key_name])
