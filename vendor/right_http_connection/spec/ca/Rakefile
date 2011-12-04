@@ -1,0 +1,64 @@
+#--  -*- mode: ruby; encoding: utf-8 -*-
+# Copyright: Copyright (c) 2011 RightScale, Inc.
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# 'Software'), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#++
+
+require 'rubygems'
+require 'rake'
+require 'rake/clean'
+
+file "passphrase.txt" do
+  File.open("passphrase.txt", "w") { |f| f.puts "foobar" }
+end
+
+file "ca.key" => "passphrase.txt" do |t|
+  sh("openssl", "req", "-new", "-x509", "-extensions", "v3_ca",
+     "-keyout", "ca.key", "-out", "ca.crt", "-days", "1825",
+     "-passout", "file:#{t.prerequisites[0]}")
+end
+
+file "ca.crt" => "ca.key"
+
+file "server.key" do |t|
+  sh("openssl", "req", "-new", "-nodes", "-keyout", t.name,
+     "-out", "server.csr", "-days", "365")
+end
+file "server.csr" => "server.key"
+
+directory "demoCA"
+file "demoCA/index.txt" => "demoCA" do
+  sh "touch", "demoCA/index.txt"
+end
+file "demoCA/serial" => "demoCA" do
+  File.open("demoCA/serial", "w") {|f| f.puts "01"}
+end
+
+file "server.crt" => ["server.csr", "ca.key", "passphrase.txt", "demoCA/index.txt", "demoCA/serial"] do |t|
+  sh("openssl", "ca", "-policy", "policy_anything", "-out", t.name,
+     "-outdir", ".",
+     "-cert", "ca.crt", "-keyfile", "ca.key", "-passin", "file:passphrase.txt",
+     "-infiles", "server.csr")
+end
+
+task :default => ["ca.crt", "server.crt", "server.key"] do |t|
+  sh("cp", *(t.prerequisites + [".."]))
+  sh "cp", "ca.crt", "../good.ca"
+end

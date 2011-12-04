@@ -1,8 +1,11 @@
 $:.unshift File.join(File.dirname(__FILE__), 'awsam')
 
-require 'rubygems'
-
 require 'fileutils'
+
+$:.unshift File.join(File.dirname(__FILE__), '../vendor/right_aws/lib')
+$:.unshift File.join(File.dirname(__FILE__), '../vendor/right_http_connection/lib')
+
+require 'right_aws'
 
 require 'accounts'
 require 'ec2'

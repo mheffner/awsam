@@ -1,5 +1,3 @@
-require 'right_aws'
-
 module Awsam
   module Ec2
 

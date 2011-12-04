@@ -1,0 +1,9 @@
+*.sw?
+*.DS_Store
+pkg/
+/spec/ca/01.pem
+/spec/ca/demoCA/index.txt.attr
+/spec/ca/demoCA/index.txt.old
+/spec/ca/demoCA/serial.old
+/spec/ca/server.crt
+/spec/ca/server.key
