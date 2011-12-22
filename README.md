@@ -2,7 +2,7 @@
 
 1. Clone
 
-        $ git clone git@github.com:mheffner/awsam.git $DIR/awsam
+        $ git clone https://github.com/mheffner/awsam.git $DIR/awsam
 
 2. Setup PATH (for non gem installs)
 
