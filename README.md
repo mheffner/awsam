@@ -159,36 +159,31 @@ environments simply by switching the active account with `aem`.
 
 The environment variables set when selecting an account are:
 
-`AMAZON_ACCESS_KEY_ID`: API access key
-`AMAZON_SECRET_ACCESS_KEY`: Secret API access key
-`AMAZON_AWS_ID`: The integer ID of this AWS account
-`EC2_CERT`: Full path to the EC2 certificate PEM file.
-`EC2_PRIVATE_KEY`: Full path to the EC2 private key PEM file.
+* `AMAZON_ACCESS_KEY_ID` - API access key
+
+* `AMAZON_SECRET_ACCESS_KEY` - Secret API access key
+
+* `AMAZON_AWS_ID` - The integer ID of this AWS account
+
+* `EC2_CERT` - Full path to the EC2 certificate PEM file.
+
+* `EC2_PRIVATE_KEY` - Full path to the EC2 private key PEM file.
 
 When selecting an SSH key, the following environment variables are
 set:
 
-`AMAZON_SSH_KEY_NAME`: Name of the keypair.
-`AMAZON_SSH_KEY_FILE`: Full path to the public key PEM file
+* `AMAZON_SSH_KEY_NAME` - Name of the keypair.
+* `AMAZON_SSH_KEY_FILE` - Full path to the public key PEM file
 
-# Long-term Goals
-
-aem utility:
-
- * list accounts by name
- * choose account by name (sets environ)
- * list shows active account
- * support default account
- * accounts as yaml config files
+# TODO List
 
 assh utility:
 
- * ssh's to an instance name
  * ssh to a tag name (multiple?)
  * caches instance id => hostname for fast lookup
- * determines correct key to add
  * determines user?
-
+ * supports complete SSH CLI options
+ * inline commands, eg: `ssh user@instance sudo tail /var/log/messages`
 
 ## Contributing to awsam
  
