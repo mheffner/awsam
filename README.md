@@ -159,9 +159,9 @@ environments simply by switching the active account with `aem`.
 
 The environment variables set when selecting an account are:
 
-* `AMAZON_ACCESS_KEY_ID` - API access key
+* `AMAZON_ACCESS_KEY_ID` and `AWS_ACCESS_KEY_ID` - API access key
 
-* `AMAZON_SECRET_ACCESS_KEY` - Secret API access key
+* `AMAZON_SECRET_ACCESS_KEY` and `AWS_SECRET_ACCESS_KEY` - Secret API access key
 
 * `AMAZON_AWS_ID` - The integer ID of this AWS account
 
