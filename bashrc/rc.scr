@@ -266,7 +266,7 @@ function __aem_use()
 	local SETDEFAULT=0
 
 	while [ $# -gt 0 ]; do
-		if [ "$1" == "--default" ]; then
+		if [[ "$1" == "--default" ]]; then
 			SETDEFAULT=1
 			shift
 			continue
