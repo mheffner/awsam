@@ -1,4 +1,3 @@
-
 function __aem_active()
 {
 	echo "$AWSAM_ACTIVE_ACCOUNT"
@@ -307,6 +306,12 @@ function __aem_use()
 	if [ $? -eq 0 ]; then
 		aem key use "$DEFAULT"
 	fi
+
+	# Create IAM credential file that is required by AWS IAM CLI tools
+	CREDENTIALS_FILE="${HOME}/.awsam/credentials.txt"
+	echo "AWSAccessKeyId=${AWS_ACCESS_KEY_ID}"    > ${CREDENTIALS_FILE}
+        echo "AWSSecretKey=${AWS_SECRET_ACCESS_KEY}" >> ${CREDENTIALS_FILE}
+        chmod 0600                                      ${CREDENTIALS_FILE}
 
 	return 0
 }
