@@ -6,6 +6,8 @@ require 'utils'
 
 module Awsam
   class Account
+    DEFAULT_REGION = "us-east-1"
+
     attr_reader :name, :keys
 
     def initialize(name, params)
@@ -15,6 +17,9 @@ module Awsam
       end
       @name = name
       @params = params
+
+      @params[:aws_region] ||= DEFAULT_REGION
+
       load_keys
     end
 
@@ -72,7 +77,8 @@ module Awsam
         "AWS_ACCESS_KEY_ID" => @params[:access_key],
         "AMAZON_SECRET_ACCESS_KEY" => @params[:secret_key],
         "AWS_SECRET_ACCESS_KEY" => @params[:secret_key],
-        "AMAZON_AWS_ID" => @params[:aws_id]
+        "AMAZON_AWS_ID" => @params[:aws_id],
+        "AWS_DEFAULT_REGION" => @params[:aws_region]
       }
       envs["EC2_CERT"] = @params[:cert_file] if @params[:cert_file]
       envs["EC2_PRIVATE_KEY"] = @params[:key_file] if @params[:key_file]
