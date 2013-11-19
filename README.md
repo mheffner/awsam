@@ -1,8 +1,22 @@
+AWSAM (Amazon Web Services Account Manager) allows you to easily manage multiple sets of AWS credentials. It has support for multiple accounts and multiple key-pairs per account.
+
+Account switching auto-populates ENV vars used by AWS' command line tools and AWSAM additionally gives you intelligent wrappers for `ssh` and `scp` which can be used like:
+
+    # ssh by AWS instance id
+    $ assh ubuntu@i-123456
+
+    # scp by instance id
+    $ ascp local-file ubuntu@i-123456:remote-file
+
+AWSAM supports both AWS' legacy [Java-based CLI tools](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/SettingUp_CommandLine.html) and their newer [python-based CLI](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html).
+
 # Installation
 
-1. Clone
+1. Clone (better if you use a ruby version manager) or gem install
 
         $ git clone https://github.com/mheffner/awsam.git $DIR/awsam
+        # or
+        $ gem install awsam
 
 2. Setup PATH (for non gem installs)
 
@@ -13,16 +27,16 @@
 
         $ raem --init
         Initialized AWS Account Manager
-        
+
         Add the following to your .bashrc:
-        
+
           if [ -s $HOME/.awsam/bash.rc ]; then
               source $HOME/.awsam/bash.rc
           fi
 
-# Updating
+## Updating
 
-1. Update repo (fetch && merge)
+1. Update repo (fetch && merge) or `gem update awsam`
 
 2. Run `raem --init`. Ignore instructions to setup .bashrc if
    you've already done so.
@@ -45,6 +59,8 @@ presented as defaults.
     Cert key file [/path/to/key_cert.pem]: cert.pem
     Private key file [/path/to/private_key.pem]: key.pem
 
+Note: if your shell can't find the `aem` command it is most likely because you haven't successfully sourced `.awsam/bash.rc` in the install steps.
+
 ## Select the active account
 
 This will update the current environment with the appropriate AWS
@@ -63,9 +79,9 @@ The active account will be marked with an arrow. The default, if set,
 will be marked with an asterisk.
 
     $ aem list
-    
+
     AWS Accounts:
-    
+
        prod [Librato Production] [1 key: my-prod-key]
     => staging [Staging account]
       *dev [Librato Development] [1 key: devel-key]
@@ -87,11 +103,11 @@ set the environment variables `AMAZON_SSH_KEY_NAME` and
 the list output with the '>' character.
 
     $ aem key use my-key-name
-    
+
     $ aem list
-    
+
     AWS Accounts:
-    
+
        staging [Staging account]
     => dev [Librato Development] [1 key: >my-key-name]
 
@@ -118,9 +134,9 @@ Example:
     $ assh ubuntu@i-123456
     warning: peer certificate won't be verified in this SSL session
     Loging in as ubuntu to ec2-1.2.3.4.compute-1.amazonaws.com
-    
+
     ...
-    
+
     ubuntu@host:~$
 
 ## ascp utility: SCP by instance ID
@@ -186,7 +202,7 @@ assh utility:
  * inline commands, eg: `ssh user@instance sudo tail /var/log/messages`
 
 ## Contributing to awsam
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
 * Fork the project
