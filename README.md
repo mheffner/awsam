@@ -54,8 +54,10 @@ presented as defaults.
     Creating a new AWS account...
     Short name: staging
     Description: Staging account
+    AWS Region [us-east-1]: us-east-1
     Access key [12346]: 123
     Secret key [secret123456]: 455
+    AWS ID: aws_account
     Cert key file [/path/to/key_cert.pem]: cert.pem
     Private key file [/path/to/private_key.pem]: key.pem
 
