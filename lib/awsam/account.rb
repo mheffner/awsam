@@ -45,32 +45,6 @@ module Awsam
       end
     end
 
-    def import_certs(cert_file, key_file)
-      unless File.exist?(cert_file)
-        puts "Can not access cert file: #{cert_file}"
-        return false
-      end
-      unless File.exist?(key_file)
-        puts "Can not access key file: #{key_file}"
-        return false
-      end
-
-      out_file = rand(36**8).to_s(36).downcase
-
-      File.open(conf_file("#{out_file}_cert.pem"), "w", 0400) do |f|
-        f << File.read(cert_file)
-      end
-      File.open(conf_file("#{out_file}_key.pem"), "w", 0400) do |f|
-        f << File.read(key_file)
-      end
-
-      @params[:cert_file] = conf_file("#{out_file}_cert.pem")
-      @params[:key_file] = conf_file("#{out_file}_key.pem")
-
-      self.save
-      return true
-    end
-
     def print_environ
       envs = {
         "AMAZON_ACCESS_KEY_ID"     => @params[:access_key],
@@ -84,8 +58,6 @@ module Awsam
         "AMAZON_AWS_ID"            => @params[:aws_id],
         "AWS_DEFAULT_REGION"       => @params[:aws_region]
       }
-      envs["EC2_CERT"] = @params[:cert_file] if @params[:cert_file]
-      envs["EC2_PRIVATE_KEY"] = @params[:key_file] if @params[:key_file]
 
       Utils::bash_environ(envs)
     end
