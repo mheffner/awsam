@@ -75,8 +75,12 @@ module Awsam
       envs = {
         "AMAZON_ACCESS_KEY_ID"     => @params[:access_key],
         "AWS_ACCESS_KEY_ID"        => @params[:access_key],
+        "AWS_ACCESS_KEY"           => @params[:access_key],
+
         "AMAZON_SECRET_ACCESS_KEY" => @params[:secret_key],
         "AWS_SECRET_ACCESS_KEY"    => @params[:secret_key],
+        "AWS_SECRET_KEY"           => @params[:secret_key],
+
         "AMAZON_AWS_ID"            => @params[:aws_id],
         "AWS_DEFAULT_REGION"       => @params[:aws_region]
       }
