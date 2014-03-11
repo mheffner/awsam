@@ -210,8 +210,6 @@ when :add_account
   access_key = read_val("Access key", (ENV['AMAZON_ACCESS_KEY_ID'] || ENV['AWS_ACCESS_KEY']))
   secret_key = read_val("Secret key", (ENV['AMAZON_SECRET_ACCESS_KEY'] || ENV['AWS_SECRET_KEY']))
   aws_id = read_val("AWS ID", ENV['AMAZON_AWS_ID'])
-  ec2_cert = read_val("Cert key file", ENV['EC2_CERT'])
-  ec2_priv_key = read_val("Private key file", ENV['EC2_PRIVATE_KEY'])
 
   acct = Awsam::Account.new(short_name,
                             { :description => desc,
@@ -221,8 +219,6 @@ when :add_account
                               :aws_region => aws_region
                             })
   acct.save
-
-  acct.import_certs(ec2_cert, ec2_priv_key)
 
 when :remove_account
   selected_account.remove

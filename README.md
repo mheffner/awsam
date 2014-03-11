@@ -58,8 +58,6 @@ presented as defaults.
     Access key [12346]: 123
     Secret key [secret123456]: 455
     AWS ID: aws_account
-    Cert key file [/path/to/key_cert.pem]: cert.pem
-    Private key file [/path/to/private_key.pem]: key.pem
 
 Note: if your shell can't find the `aem` command it is most likely because you haven't successfully sourced `.awsam/bash.rc` in the install steps.
 
@@ -177,15 +175,11 @@ environments simply by switching the active account with `aem`.
 
 The environment variables set when selecting an account are:
 
-* `AMAZON_ACCESS_KEY_ID` and `AWS_ACCESS_KEY_ID` - API access key
+* `AMAZON_ACCESS_KEY_ID` and `AWS_ACCESS_KEY_ID` and `AWS_ACCESS_KEY` - API access key
 
-* `AMAZON_SECRET_ACCESS_KEY` and `AWS_SECRET_ACCESS_KEY` - Secret API access key
+* `AMAZON_SECRET_ACCESS_KEY` and `AWS_SECRET_ACCESS_KEY` and `AWS_SECRET_KEY` - Secret API access key
 
 * `AMAZON_AWS_ID` - The integer ID of this AWS account
-
-* `EC2_CERT` - Full path to the EC2 certificate PEM file.
-
-* `EC2_PRIVATE_KEY` - Full path to the EC2 private key PEM file.
 
 When selecting an SSH key, the following environment variables are
 set:
