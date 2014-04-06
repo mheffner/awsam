@@ -10,16 +10,17 @@ module Awsam
         return nil
       end
 
-      insts = ec2.describe_instances
-      if !insts || insts.length == 0
-        puts "No instances available in account"
-        return nil
-      end
+      if instance_id =~ /^i-[0-9a-f]{7,9}$/
+        insts = ec2.describe_instances
+        if !insts || insts.length == 0
+          puts "No instances available in account"
+          return nil
+        end
 
-      insts.each do |inst|
-        return inst if inst[:aws_instance_id] == instance_id
+        insts.each do |inst|
+          return inst if inst[:aws_instance_id] == instance_id
+        end
       end
-
       return nil
     end
   end
