@@ -30,13 +30,6 @@ unless acct
   exit 1
 end
 
-# Try to detect if this is an instance ID and simply invoke ssh
-# if it doesn't match
-unless instance_id =~ /^i-[0-9a-f]{7,9}$/
-  exec "ssh #{user}@#{instance_id}"
-  exit 127
-end
-
 inst = Awsam::Ec2::find_instance(acct, instance_id)
 unless inst
   puts "Unable to locate instance ID #{instance_id}"
