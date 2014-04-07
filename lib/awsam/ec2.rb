@@ -17,8 +17,7 @@ module Awsam
           puts "instance_id does not exist"
           exit 1
         end
-        
-        # TODO: Constant time instance_id lookup, handle invalid id error
+
         insts.each do |inst|
           return inst if inst[:aws_instance_id] == instance_id
         end
