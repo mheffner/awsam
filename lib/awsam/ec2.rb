@@ -10,8 +10,9 @@ module Awsam
         return nil
       end
 
+      insts = ec2.describe_instances
+
       if instance_id =~ /^i-[0-9a-f]{7,9}$/
-        insts = ec2.describe_instances
         if !insts || insts.length == 0
           puts "No instances available in account"
           return nil
@@ -29,7 +30,6 @@ module Awsam
 
         tags.each do |tag|
           if tag[:value] == instance_id
-            insts = ec2.describe_instances
             insts.each do |inst|
               return inst if inst[:aws_instance_id] == tag[:resource_id]
             end
