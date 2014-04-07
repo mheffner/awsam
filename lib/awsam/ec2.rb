@@ -10,14 +10,15 @@ module Awsam
         return nil
       end
 
-      insts = ec2.describe_instances
-
-      if !insts || insts.length == 0
-        puts "No instances available in account"
-        return nil
-      end
-
       if instance_id =~ /^i-[0-9a-f]{7,9}$/
+        begin
+          insts = ec2.describe_instances(instance_id)
+        rescue RightAws::AwsError
+          puts "instance_id does not exist"
+          exit 1
+        end
+        
+        # TODO: Constant time instance_id lookup, handle invalid id error
         insts.each do |inst|
           return inst if inst[:aws_instance_id] == instance_id
         end
@@ -30,6 +31,13 @@ module Awsam
 
         tags.each do |tag|
           if tag[:value] == instance_id
+            insts = ec2.describe_instances
+
+            if !insts || insts.length == 0
+              puts "No instances available in account"
+              return nil
+            end
+            
             insts.each do |inst|
               return inst if inst[:aws_instance_id] == tag[:resource_id]
             end
