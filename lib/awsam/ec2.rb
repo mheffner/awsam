@@ -23,7 +23,7 @@ module Awsam
     
     def self.find_by_instance_id(ec2, instance_id)
       begin
-        inst = ec2.describe_instances(instance_id)[0]
+        inst = ec2.describe_instances(instance_id).first
       rescue RightAws::AwsError
         puts "instance_id does not exist"
         exit 1
@@ -48,7 +48,7 @@ module Awsam
       end
 
       insts.each do |inst|
-        return inst if inst[:aws_instance_id] == tag[:resource_id]
+        return inst if inst[:aws_instance_id] == tag.first[:resource_id]
       end
     end
   end
