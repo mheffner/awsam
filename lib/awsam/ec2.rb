@@ -33,24 +33,22 @@ module Awsam
     end
     
     def self.find_by_tag(ec2, instance_id)
-      tags = ec2.describe_tags(:filters => { :value => instance_id })
-      
-      if !tags || tags.length == 0
+      tag = ec2.describe_tags(:filters => { :value => instance_id })
+
+      if !tag || tag.length == 0
         puts "No tags available in account"
         return nil
       end
 
-      tags.each do |tag|
-        insts = ec2.describe_instances
+      insts = ec2.describe_instances
 
-        if !insts || insts.length == 0
-          puts "No instances available in account"
-          return nil
-        end
+      if !insts || insts.length == 0
+        puts "No instances available in account"
+        return nil
+      end
 
-        insts.each do |inst|
-          return inst if inst[:aws_instance_id] == tag[:resource_id]
-        end
+      insts.each do |inst|
+        return inst if inst[:aws_instance_id] == tag[:resource_id]
       end
     end
   end
