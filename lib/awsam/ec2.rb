@@ -20,24 +20,23 @@ module Awsam
         
         return inst
       else
-        tags = ec2.describe_tags
+        tags = ec2.describe_tags(:filters => { :value => instance_id })
+        
         if !tags || tags.length == 0
           puts "No tags available in account"
           return nil
         end
 
         tags.each do |tag|
-          if tag[:value] == instance_id
-            insts = ec2.describe_instances
+          insts = ec2.describe_instances
 
-            if !insts || insts.length == 0
-              puts "No instances available in account"
-              return nil
-            end
-            
-            insts.each do |inst|
-              return inst if inst[:aws_instance_id] == tag[:resource_id]
-            end
+          if !insts || insts.length == 0
+            puts "No instances available in account"
+            return nil
+          end
+
+          insts.each do |inst|
+            return inst if inst[:aws_instance_id] == tag[:resource_id]
           end
         end
       end
