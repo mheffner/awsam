@@ -15,33 +15,41 @@ module Awsam
     
     def self.find(ec2, instance_id)
       if instance_id =~ /^i-[0-9a-f]{7,9}$/
-        begin
-          inst = ec2.describe_instances(instance_id)[0]
-        rescue RightAws::AwsError
-          puts "instance_id does not exist"
-          exit 1
-        end
-        
-        return inst
+        inst = find_by_instance_id(ec2, instance_id)
       else
-        tags = ec2.describe_tags(:filters => { :value => instance_id })
-        
-        if !tags || tags.length == 0
-          puts "No tags available in account"
+        inst = find_by_tag(ec2, instance_id)
+      end
+    end
+    
+    def self.find_by_instance_id(ec2, instance_id)
+      begin
+        inst = ec2.describe_instances(instance_id)[0]
+      rescue RightAws::AwsError
+        puts "instance_id does not exist"
+        exit 1
+      end
+      
+      return inst
+    end
+    
+    def self.find_by_tag(ec2, instance_id)
+      tags = ec2.describe_tags(:filters => { :value => instance_id })
+      
+      if !tags || tags.length == 0
+        puts "No tags available in account"
+        return nil
+      end
+
+      tags.each do |tag|
+        insts = ec2.describe_instances
+
+        if !insts || insts.length == 0
+          puts "No instances available in account"
           return nil
         end
 
-        tags.each do |tag|
-          insts = ec2.describe_instances
-
-          if !insts || insts.length == 0
-            puts "No instances available in account"
-            return nil
-          end
-
-          insts.each do |inst|
-            return inst if inst[:aws_instance_id] == tag[:resource_id]
-          end
+        insts.each do |inst|
+          return inst if inst[:aws_instance_id] == tag[:resource_id]
         end
       end
     end
