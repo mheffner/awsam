@@ -3,13 +3,17 @@ module Awsam
 
     def self.find_instance(acct, instance_id)
       logger = Logger.new(File.open("/dev/null", "w"))
-      ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key,
-                              :logger => logger)
+      ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key, :logger => logger)
+      
       unless ec2
         puts "Unable to connect to EC2"
         return nil
       end
 
+      inst = find(ec2, instance_id)
+    end
+    
+    def self.find(ec2, instance_id)
       if instance_id =~ /^i-[0-9a-f]{7,9}$/
         begin
           inst = ec2.describe_instances(instance_id)[0]
@@ -40,8 +44,6 @@ module Awsam
           end
         end
       end
-      
-      return nil
     end
   end
 end
