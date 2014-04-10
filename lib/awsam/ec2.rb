@@ -12,15 +12,13 @@ module Awsam
 
       if instance_id =~ /^i-[0-9a-f]{7,9}$/
         begin
-          insts = ec2.describe_instances(instance_id)
+          inst = ec2.describe_instances(instance_id)[0]
         rescue RightAws::AwsError
           puts "instance_id does not exist"
           exit 1
         end
-
-        insts.each do |inst|
-          return inst if inst[:aws_instance_id] == instance_id
-        end
+        
+        return inst
       else
         tags = ec2.describe_tags
         if !tags || tags.length == 0
