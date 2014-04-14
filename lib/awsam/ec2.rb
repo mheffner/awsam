@@ -35,11 +35,6 @@ module Awsam
     def self.find_by_tag(ec2, instance_id)
       tags = ec2.describe_tags
 
-      if !tags || tags.length == 0
-        puts "No tags available in account"
-        return nil
-      end
-
       results = []
       
       tags.each do |tag|
@@ -47,7 +42,12 @@ module Awsam
           results << tag
         end
       end
-
+      
+      if !results || results.length == 0
+        puts "No tags by this name are available in your account"
+        exit 1
+      end
+      
       results.sort! { |a,b| a[:value] <=> b[:value] }
       
       puts "Please select which node you wish to use:"
