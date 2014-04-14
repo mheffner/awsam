@@ -38,7 +38,7 @@ module Awsam
       results = []
       
       tags.each do |tag|
-        if tag[:value].include?(instance_id)
+        if tag[:value].include?(instance_id) && tag[:resource_type] == "instance"
           results << tag
         end
       end
@@ -51,9 +51,9 @@ module Awsam
       results.sort! { |a,b| a[:value] <=> b[:value] }
       
       puts "Please select which node you wish to use:"
-      
+
       results.each_with_index do |elem, i|
-        puts "#{i}) #{elem[:value]}"
+        puts "#{i}) #{elem[:value]} (#{elem[:resource_id]})"
       end
 
       input = $stdin.gets
