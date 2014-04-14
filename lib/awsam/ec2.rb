@@ -42,12 +42,13 @@ module Awsam
           results << tag
         end
       end
-      
+
       if !results || results.length == 0
         puts "No tags by this name are available in your account"
         exit 1
       end
       
+      results.uniq! { |a| a[:resource_id] }
       results.sort! { |a,b| a[:value] <=> b[:value] }
       
       puts "Please select which node you wish to use:"
