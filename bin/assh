@@ -12,7 +12,7 @@ opts = Trollop::options do
       assh -- ssh client for EC2
   
   SYNOPSIS
-      assh [-f first_node] [user@]hostname
+      assh [-f --first-node] [user@]hostname
       
   DESCRIPTION
       assh is a program for logging into an EC2 node.  assh allows you to specify a hostname by either an instance ID or a 
@@ -21,10 +21,12 @@ opts = Trollop::options do
       
       The options are as follows:
       
-      -f first_node
+      -f first-node
           Use first_node to specify that you want to override assh's default behavior when multiple tag names result from your 
           requested hostname.  By enabling this flag, you're allowing assh to use any of the resulting hosts.
   EOS
+  
+  opt :first_node, "Use first node mode", :short => "-f"
 end
 
 user = "root"
@@ -42,7 +44,7 @@ unless acct
   exit 1
 end
 
-inst = Awsam::Ec2::find_instance(acct, instance_id)
+inst = Awsam::Ec2::find_instance(acct, instance_id, opts)
 unless inst
   puts "Unable to locate instance ID #{instance_id}"
   exit 1

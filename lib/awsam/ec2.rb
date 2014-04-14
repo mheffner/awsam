@@ -1,7 +1,7 @@
 module Awsam
   module Ec2
 
-    def self.find_instance(acct, instance_id)
+    def self.find_instance(acct, instance_id, opts)
       logger = Logger.new(File.open("/dev/null", "w"))
       ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key, :logger => logger)
       
@@ -10,14 +10,14 @@ module Awsam
         return nil
       end
 
-      inst = find(ec2, instance_id)
+      inst = find(ec2, instance_id, opts)
     end
     
-    def self.find(ec2, instance_id)
+    def self.find(ec2, instance_id, opts)
       if instance_id =~ /^i-[0-9a-f]{7,9}$/
         inst = find_by_instance_id(ec2, instance_id)
       else
-        inst = find_by_tag(ec2, instance_id)
+        inst = find_by_tag(ec2, instance_id, opts)
       end
     end
     
@@ -32,7 +32,7 @@ module Awsam
       return inst
     end
     
-    def self.find_by_tag(ec2, instance_id)
+    def self.find_by_tag(ec2, instance_id, opts)
       tags = ec2.describe_tags
 
       results = []
@@ -51,15 +51,18 @@ module Awsam
       results.uniq! { |a| a[:resource_id] }
       results.sort! { |a,b| a[:value] <=> b[:value] }
       
-      puts "Please select which node you wish to use:"
+      if opts[:first_node]
+        node = results.first
+      else
+        puts "Please select which node you wish to use:"
 
-      results.each_with_index do |elem, i|
-        puts "#{i}) #{elem[:value]} (#{elem[:resource_id]})"
+        results.each_with_index do |elem, i|
+          puts "#{i}) #{elem[:value]} (#{elem[:resource_id]})"
+        end
+        
+        input = $stdin.gets
+        node = results[input.to_i]
       end
-
-      input = $stdin.gets
-
-      node = results[input.to_i]
 
       inst = ec2.describe_instances(node[:resource_id])
 
