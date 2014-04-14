@@ -3,16 +3,28 @@
 $:.unshift File.join(File.dirname(__FILE__), '../lib')
 
 require 'awsam'
+require 'trollop'
 
-#
-# Will perform an ssh to an instance ID.
-#
-# Usage: assh <instance ID>
-#
-
-if ARGV.length != 1
-  puts "Usage: assh [user@]<instance ID>"
-  exit 1
+opts = Trollop::options do
+  banner <<-EOS
+  
+  NAME
+      assh -- ssh client for EC2
+  
+  SYNOPSIS
+      assh [-f first_node] [user@]hostname
+      
+  DESCRIPTION
+      assh is a program for logging into an EC2 node.  assh allows you to specify a hostname by either an instance ID or a 
+      tag name.  Specifying a hostname by a substring of multiple tags, by default, will allow you to specify the exact node you 
+      want to use.
+      
+      The options are as follows:
+      
+      -f first_node
+          Use first_node to specify that you want to override assh's default behavior when multiple tag names result from your 
+          requested hostname.  By enabling this flag, you're allowing assh to use any of the resulting hosts.
+  EOS
 end
 
 user = "root"
