@@ -58,6 +58,7 @@ module Awsam
           puts "#{i}) #{elem[:value]} (#{elem[:resource_id]})"
         end
         
+        print "> " 
         input = $stdin.gets
         node = results[input.to_i]
       end
