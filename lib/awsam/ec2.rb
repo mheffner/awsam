@@ -33,11 +33,9 @@ module Awsam
     end
     
     def self.find_by_tag(ec2, instance_id, opts)
-      tags = ec2.describe_tags
-
       results = []
       
-      tags.each do |tag|
+      ec2.describe_tags.each do |tag|
         if tag[:value].include?(instance_id) && tag[:resource_type] == "instance"
           results << tag
         end
