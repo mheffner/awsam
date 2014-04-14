@@ -33,23 +33,41 @@ module Awsam
     end
     
     def self.find_by_tag(ec2, instance_id)
-      tag = ec2.describe_tags(:filters => { :value => instance_id })
+      tags = ec2.describe_tags
 
-      if !tag || tag.length == 0
+      if !tags || tags.length == 0
         puts "No tags available in account"
         return nil
       end
 
-      insts = ec2.describe_instances
+      results = []
+      
+      tags.each do |tag|
+        if tag[:value].include?(instance_id)
+          results << tag
+        end
+      end
 
-      if !insts || insts.length == 0
+      results.sort! { |a,b| a[:value] <=> b[:value] }
+      
+      puts "Please select which node you wish to use:"
+      
+      results.each_with_index do |elem, i|
+        puts "#{i}) #{elem[:value]}"
+      end
+
+      input = $stdin.gets
+
+      node = results[input.to_i]
+
+      inst = ec2.describe_instances(node[:resource_id])
+
+      if !inst || inst.length == 0
         puts "No instances available in account"
         return nil
       end
 
-      insts.each do |inst|
-        return inst if inst[:aws_instance_id] == tag.first[:resource_id]
-      end
+      return inst.first
     end
   end
 end
