@@ -49,7 +49,7 @@ module Awsam
       results.uniq! { |a| a[:resource_id] }
       results.sort! { |a,b| a[:value] <=> b[:value] }
       
-      if opts[:first_node]
+      if opts[:first_node] || results.length == 1
         node = results.first
       else
         puts "Please select which node you wish to use:"
