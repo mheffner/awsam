@@ -10,26 +10,24 @@ module Awsam
         return nil
       end
 
-      inst = find(ec2, instance_id)
+      find(ec2, instance_id)
     end
     
     def self.find(ec2, instance_id)
       if instance_id =~ /^i-[0-9a-f]{7,9}$/
-        inst = find_by_instance_id(ec2, instance_id)
+        find_by_instance_id(ec2, instance_id)
       else
-        inst = find_by_tag(ec2, instance_id)
+        find_by_tag(ec2, instance_id)
       end
     end
     
     def self.find_by_instance_id(ec2, instance_id)
       begin
-        inst = ec2.describe_instances(instance_id).first
+        ec2.describe_instances(instance_id).first
       rescue RightAws::AwsError
         puts "instance_id does not exist"
         exit 1
       end
-      
-      return inst
     end
     
     def self.find_by_tag(ec2, instance_id)
