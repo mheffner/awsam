@@ -5,7 +5,7 @@ $:.unshift File.join(File.dirname(__FILE__), '../lib')
 require 'awsam'
 require 'trollop'
 
-opts = Trollop::options do
+$opts = Trollop::options do
   banner <<-EOS
   
   NAME
@@ -44,7 +44,7 @@ unless acct
   exit 1
 end
 
-inst = Awsam::Ec2::find_instance(acct, instance_id, opts)
+inst = Awsam::Ec2::find_instance(acct, instance_id)
 unless inst
   puts "Unable to locate instance ID #{instance_id}"
   exit 1
