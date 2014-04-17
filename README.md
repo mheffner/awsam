@@ -191,7 +191,6 @@ set:
 
 assh utility:
 
- * ssh to a tag name (multiple?)
  * caches instance id => hostname for fast lookup
  * determines user?
  * supports complete SSH CLI options

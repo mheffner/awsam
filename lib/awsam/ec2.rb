@@ -3,24 +3,72 @@ module Awsam
 
     def self.find_instance(acct, instance_id)
       logger = Logger.new(File.open("/dev/null", "w"))
-      ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key,
-                              :logger => logger)
+      ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key, :logger => logger)
+      
       unless ec2
         puts "Unable to connect to EC2"
         return nil
       end
 
-      insts = ec2.describe_instances
-      if !insts || insts.length == 0
+      find(ec2, instance_id)
+    end
+    
+    def self.find(ec2, instance_id)
+      if instance_id =~ /^i-[0-9a-f]{7,9}$/
+        find_by_instance_id(ec2, instance_id)
+      else
+        find_by_tag(ec2, instance_id)
+      end
+    end
+    
+    def self.find_by_instance_id(ec2, instance_id)
+      begin
+        ec2.describe_instances(instance_id).first
+      rescue RightAws::AwsError
+        puts "instance_id does not exist"
+        exit 1
+      end
+    end
+    
+    def self.find_by_tag(ec2, instance_id)
+      results = []
+      
+      ec2.describe_tags.each do |tag|
+        if tag[:value].include?(instance_id) && tag[:resource_type] == "instance"
+          results << tag
+        end
+      end
+
+      if !results || results.length == 0
+        puts "No tags by this name are available in your account"
+        exit 1
+      end
+      
+      results.uniq! { |a| a[:resource_id] }
+      results.sort! { |a,b| a[:value] <=> b[:value] }
+      
+      if $opts[:first_node] || results.length == 1
+        node = results.first
+      else
+        puts "Please select which node you wish to use:"
+
+        results.each_with_index do |elem, i|
+          puts "#{i}) #{elem[:value]} (#{elem[:resource_id]})"
+        end
+        
+        print "> " 
+        input = $stdin.gets
+        node = results[input.to_i]
+      end
+
+      inst = ec2.describe_instances(node[:resource_id])
+
+      if !inst || inst.length == 0
         puts "No instances available in account"
         return nil
       end
 
-      insts.each do |inst|
-        return inst if inst[:aws_instance_id] == instance_id
-      end
-
-      return nil
+      return inst.first
     end
   end
 end

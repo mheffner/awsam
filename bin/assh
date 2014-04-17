@@ -3,16 +3,30 @@
 $:.unshift File.join(File.dirname(__FILE__), '../lib')
 
 require 'awsam'
+require 'trollop'
 
-#
-# Will perform an ssh to an instance ID.
-#
-# Usage: assh <instance ID>
-#
-
-if ARGV.length != 1
-  puts "Usage: assh [user@]<instance ID>"
-  exit 1
+$opts = Trollop::options do
+  banner <<-EOS
+  
+  NAME
+      assh -- ssh client for EC2
+  
+  SYNOPSIS
+      assh [-f --first-node] [user@]hostname
+      
+  DESCRIPTION
+      assh is a program for logging into an EC2 node.  assh allows you to specify a hostname by either an instance ID or a 
+      tag name.  Specifying a hostname by a substring of multiple tags, by default, will allow you to specify the exact node you 
+      want to use.
+      
+      The options are as follows:
+      
+      -f first-node
+          Use first_node to specify that you want to override assh's default behavior when multiple tag names result from your 
+          requested hostname.  By enabling this flag, you're allowing assh to use any of the resulting hosts.
+  EOS
+  
+  opt :first_node, "Use first node mode", :short => "-f"
 end
 
 user = "root"
@@ -28,13 +42,6 @@ acct = Awsam::Accounts::active
 unless acct
   puts "No active account. Use 'aem use <account name>' to select one"
   exit 1
-end
-
-# Try to detect if this is an instance ID and simply invoke ssh
-# if it doesn't match
-unless instance_id =~ /^i-[0-9a-f]{7,9}$/
-  exec "ssh #{user}@#{instance_id}"
-  exit 127
 end
 
 inst = Awsam::Ec2::find_instance(acct, instance_id)
