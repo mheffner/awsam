@@ -33,11 +33,10 @@ module Awsam
     def self.find_by_tag(ec2, instance_id)
       results = []
 
-      puts "here!"
       ec2.describe_tags(:filters => {
                           "resource-type" => "instance"
                         }).each do |tag|
-        if tag[:value].include?(instance_id)
+        if tag[:value].downcase.include?(instance_id.downcase)
           results << tag
         end
       end
