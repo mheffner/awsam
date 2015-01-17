@@ -236,6 +236,25 @@ Usage:
     $ ascp [user@]<instance ID>:remote-file local-file
     $ ascp local-file [user@]<instance ID>:remote-file
 
+### Default user
+
+You can specify a default user to *assh* by setting
+`AWS_DEFAULT_USER`:
+
+```
+$ AWS_DEFAULT_USER=ubuntu assh datanode
+Please select which node you wish to use:
+
+0) metrics_facing-stg-v2-datanode-11 (i-30XXXXX, m1.large, 2014-02-12T20:46:29.000Z)
+1) metrics_facing-stg-v2-datanode-12 (i-91XXXXX, m1.large, 2014-02-13T04:20:32.000Z)
+2) metrics_facing-stg-v2-datanode-13 (i-64XXXXX, m1.large, 2014-03-04T18:59:26.000Z)
+q) Quit
+
+> 2
+
+Logging in as ubuntu to ec2-XXXX.compute-1.amazonaws.com
+```
+
 ### Remove a key
 
 You can remove ah SSH key from an account (defaults to the current
