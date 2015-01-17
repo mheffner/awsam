@@ -32,9 +32,11 @@ module Awsam
     
     def self.find_by_tag(ec2, instance_id)
       results = []
-      
-      ec2.describe_tags.each do |tag|
-        if tag[:value].include?(instance_id) && tag[:resource_type] == "instance"
+
+      ec2.describe_tags(:filters => {
+                          "resource-type" => "instance"
+                        }).each do |tag|
+        if tag[:value].downcase.include?(instance_id.downcase)
           results << tag
         end
       end
@@ -46,29 +48,45 @@ module Awsam
       
       results.uniq! { |a| a[:resource_id] }
       results.sort! { |a,b| a[:value] <=> b[:value] }
-      
+
+      rmap = {}
+      ec2.describe_instances(results.map{|a| a[:resource_id]},
+                             :filters => {
+                               "instance-state-name" => "running"
+                             }).each do |inst|
+        rmap[inst[:aws_instance_id]] = inst
+      end
+
+      results.reject! { |a| rmap[a[:resource_id]].nil? }
+
+      if results.length == 0
+        puts "No running instances by that tag name are available"
+        exit 1
+      end
+
       if $opts[:first_node] || results.length == 1
         node = results.first
       else
         puts "Please select which node you wish to use:"
+        puts
 
         results.each_with_index do |elem, i|
-          puts "#{i}) #{elem[:value]} (#{elem[:resource_id]})"
+          inst = rmap[elem[:resource_id]]
+          puts "%d) %s (%s, %s, %s)" %
+            [i, elem[:value], inst[:aws_instance_id],
+             inst[:aws_instance_type], inst[:aws_launch_time]]
         end
-        
-        print "> " 
+        puts "q) Quit"
+        puts
+
+        print "> "
         input = $stdin.gets
+        puts
+        exit unless input =~ /^\d+$/
         node = results[input.to_i]
       end
 
-      inst = ec2.describe_instances(node[:resource_id])
-
-      if !inst || inst.length == 0
-        puts "No instances available in account"
-        return nil
-      end
-
-      return inst.first
+      return rmap[node[:resource_id]]
     end
   end
 end
