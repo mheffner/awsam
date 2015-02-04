@@ -36,7 +36,8 @@ module Awsam
       ec2.describe_tags(:filters => {
                           "resource-type" => "instance"
                         }).each do |tag|
-        if tag[:value].downcase.include?(instance_id.downcase)
+        if tag[:key] == "Name" &&
+            tag[:value].downcase.include?(instance_id.downcase)
           results << tag
         end
       end
