@@ -22,13 +22,11 @@ AWSAM supports both AWS' legacy [Java-based CLI tools](http://docs.aws.amazon.co
 
 # Installation
 
-1. Clone (better if you use a ruby version manager) or gem install
+1. Clone the repo:
 
         $ git clone https://github.com/mheffner/awsam.git $DIR/awsam
-        # or
-        $ gem install awsam
 
-2. Setup PATH (for non gem installs)
+2. Setup PATH
 
         $ echo "export PATH=\$PATH:$DIR/awsam/bin" >> $HOME/.bashrc
         $ source $HOME/.bashrc
