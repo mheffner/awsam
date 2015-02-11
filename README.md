@@ -87,8 +87,8 @@ presented as defaults.
     Short name: staging
     Description: Staging account
     AWS Region [us-east-1]: us-east-1
-    Access key [12346]: 123
-    Secret key [secret123456]: 455
+    Access key [12346]: 123 *from AWS credentials*
+    Secret key [secret123456]: 455 *from AWS credentials*
     AWS ID: aws_account
 
 Note: if your shell can't find the `aem` command it is most likely because you haven't successfully sourced `.awsam/bash.rc` in the install steps.
@@ -126,6 +126,8 @@ chosen from current environment if set.
 
     $ aem key add my-key-name /path/to/my-keypair.pem
     Imported key pair my-key-name for account staging [Staging account]
+
+_The keypair *must* match the name of the keypair in AWS_
 
 ### Select a key
 
