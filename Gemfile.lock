@@ -1,16 +1,23 @@
-GEM
-  remote: http://rubygems.org/
+PATH
+  remote: .
   specs:
+    awsam (0.0.1)
+      right_aws (= 3.1.0)
+      trollop (= 2.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rake (10.4.2)
     right_aws (3.1.0)
       right_http_connection (>= 1.2.5)
     right_http_connection (1.5.0)
-    shoulda (2.11.3)
     trollop (2.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  right_aws (= 3.1.0)
-  shoulda
-  trollop
+  awsam!
+  bundler (~> 1.7)
+  rake (~> 10.0)
