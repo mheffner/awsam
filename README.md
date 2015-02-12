@@ -22,16 +22,11 @@ AWSAM supports both AWS' legacy [Java-based CLI tools](http://docs.aws.amazon.co
 
 # Installation
 
-1. Clone the repo:
+1. Install the gem.
 
-        $ git clone https://github.com/mheffner/awsam.git $DIR/awsam
+        $ gem install awsam
 
-2. Setup PATH
-
-        $ echo "export PATH=\$PATH:$DIR/awsam/bin" >> $HOME/.bashrc
-        $ source $HOME/.bashrc
-
-3. Install BASH rc file
+2. Install BASH rc file
 
         $ raem --init
         Initialized AWS Account Manager
@@ -41,6 +36,8 @@ AWSAM supports both AWS' legacy [Java-based CLI tools](http://docs.aws.amazon.co
           if [ -s $HOME/.awsam/bash.rc ]; then
               source $HOME/.awsam/bash.rc
           fi
+
+3. Open a new bash environment.
 
 ### Environment variables
 
