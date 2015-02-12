@@ -1,6 +1,8 @@
 module Awsam
   module Ec2
 
+    LOOKUP_TAGS = ["Name", "aws:autoscaling:groupName"].freeze
+
     def self.find_instance(acct, instance_id)
       logger = Logger.new(File.open("/dev/null", "w"))
       ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key, :logger => logger)
@@ -36,7 +38,7 @@ module Awsam
       ec2.describe_tags(:filters => {
                           "resource-type" => "instance"
                         }).each do |tag|
-        if tag[:key] == "Name" &&
+        if LOOKUP_TAGS.include?(tag[:key]) &&
             tag[:value].downcase.include?(instance_id.downcase)
           results << tag
         end
