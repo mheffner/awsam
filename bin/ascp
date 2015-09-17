@@ -46,7 +46,8 @@ keyfile = nil
       exit 1
     end
 
-    args[i] = args[i].gsub(instance_id, inst[:dns_name])
+    hostname = Awsam::Ec2::instance_hostname(inst)
+    args[i] = args[i].gsub(instance_id, hostname)
 
     key = acct.find_key(inst[:ssh_key_name])
     keyfile = key.path if key

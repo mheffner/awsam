@@ -57,15 +57,17 @@ if inst[:aws_state] != "running"
   exit 1
 end
 
-puts "Logging in as #{user} to #{inst[:dns_name]}"
+hostname = Awsam::Ec2::instance_hostname(inst)
+
+puts "Logging in as #{user} to #{hostname}"
 puts
 
 key = acct.find_key(inst[:ssh_key_name])
 
 if key
-  exec "ssh -i #{key.path} -o IdentitiesOnly=yes #{user}@#{inst[:dns_name]}"
+  exec "ssh -i #{key.path} -o IdentitiesOnly=yes #{user}@#{hostname}"
 else
-  exec "ssh #{user}@#{inst[:dns_name]}"
+  exec "ssh #{user}@#{hostname}"
 end
 
 # Local Variables:
