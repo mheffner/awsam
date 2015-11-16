@@ -119,7 +119,8 @@ will be marked with an asterisk.
 ### Import a key pair
 
 Add a key to the default account, or the specified account. Defaults
-chosen from current environment if set.
+chosen from current environment if set. IMPORTANT: `my-key-name` must
+match the logical name of the AWS EC2 keypair.
 
     $ aem key add my-key-name /path/to/my-keypair.pem
     Imported key pair my-key-name for account staging [Staging account]
