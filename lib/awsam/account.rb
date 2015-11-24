@@ -128,6 +128,10 @@ module Awsam
       @params[:secret_key]
     end
 
+    def aws_region
+      @params[:aws_region]
+    end
+
 private
 
     def conf_file(file = nil)

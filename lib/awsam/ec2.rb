@@ -1,20 +1,20 @@
 module Awsam
   module Ec2
 
-    LOOKUP_TAGS = ["Name", "aws:autoscaling:groupName", "AlsoKnownAs"].freeze
+    LOOKUP_TAGS = ["Name", "aws:autoscaling:groupName"].freeze
 
     def self.instance_hostname(inst)
       hostname = inst[:dns_name]
-      if hostname.to_s.length == 0
-        # Are we in a VPC?
-        hostname = inst[:private_dns_name]
+      # Are we in a VPC?
+      if inst[:vpc_id]
+        hostname = inst[:private_ip_address]
       end
       hostname
     end
 
     def self.find_instance(acct, instance_id)
       logger = Logger.new(File.open("/dev/null", "w"))
-      ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key, :logger => logger)
+      ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key, :logger => logger, :region => acct.aws_region)
       
       unless ec2
         puts "Unable to connect to EC2"
