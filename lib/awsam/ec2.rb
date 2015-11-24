@@ -1,7 +1,7 @@
 module Awsam
   module Ec2
 
-    LOOKUP_TAGS = ["Name", "aws:autoscaling:groupName"].freeze
+    LOOKUP_TAGS = ["Name", "aws:autoscaling:groupName", "AlsoKnownAs"].freeze
 
     def self.instance_hostname(inst)
       hostname = inst[:dns_name]
