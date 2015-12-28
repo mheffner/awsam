@@ -14,7 +14,9 @@ module Awsam
 
     def self.find_instance(acct, instance_id)
       logger = Logger.new(File.open("/dev/null", "w"))
-      ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key, :logger => logger, :region => acct.aws_region)
+      ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key,
+                              :logger => logger,
+                              :endpoint_url => acct.ec2_url)
       
       unless ec2
         puts "Unable to connect to EC2"
