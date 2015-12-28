@@ -56,7 +56,9 @@ module Awsam
         "AWS_SECRET_KEY"           => @params[:secret_key],
 
         "AMAZON_AWS_ID"            => @params[:aws_id],
-        "AWS_DEFAULT_REGION"       => @params[:aws_region]
+        "AWS_DEFAULT_REGION"       => @params[:aws_region],
+
+        "EC2_URL"                  => ec2_url
       }
 
       Utils::bash_environ(envs)
@@ -130,6 +132,10 @@ module Awsam
 
     def aws_region
       @params[:aws_region]
+    end
+
+    def ec2_url
+      "https://ec2.#{aws_region}.amazonaws.com"
     end
 
 private
