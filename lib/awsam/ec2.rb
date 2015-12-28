@@ -84,9 +84,11 @@ module Awsam
 
         results.each_with_index do |elem, i|
           inst = rmap[elem[:resource_id]]
-          puts "%d) %s (%s, %s, %s)" %
+          puts "%d) %s (%s, %s, %s, %s)" %
             [i, elem[:value], inst[:aws_instance_id],
-             inst[:aws_instance_type], inst[:aws_launch_time]]
+             inst[:aws_instance_type],
+             inst[:aws_availability_zone],
+             inst[:aws_launch_time]]
         end
         puts "q) Quit"
         puts
