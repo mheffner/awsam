@@ -27,7 +27,7 @@ module Awsam
     end
     
     def self.find(ec2, instance_id)
-      if instance_id =~ /^i-[0-9a-f]{7,9}$/
+      if instance_id =~ /^i-[0-9a-f]{8,17}$/
         find_by_instance_id(ec2, instance_id)
       else
         find_by_tag(ec2, instance_id)

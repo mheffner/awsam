@@ -30,7 +30,7 @@ end
 
 keyfile = nil
 0.upto(args.length - 1) do |i|
-  m = args[i].match(/([a-zA-Z0-9_]{1,}@){0,1}(i-[0-9a-f]{8}):/)
+  m = args[i].match(/([a-zA-Z0-9_]{1,}@){0,1}(i-[0-9a-f]{8,17}):/)
   if m
     user = m[1]
     instance_id = m[2]
