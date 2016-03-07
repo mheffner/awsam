@@ -17,7 +17,7 @@ module Awsam
       ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key,
                               :logger => logger,
                               :endpoint_url => acct.ec2_url)
-      
+
       unless ec2
         puts "Unable to connect to EC2"
         return nil
@@ -25,7 +25,7 @@ module Awsam
 
       find(ec2, instance_id)
     end
-    
+
     def self.find(ec2, instance_id)
       if instance_id =~ /^i-[0-9a-f]{8,17}$/
         find_by_instance_id(ec2, instance_id)
@@ -33,7 +33,7 @@ module Awsam
         find_by_tag(ec2, instance_id)
       end
     end
-    
+
     def self.find_by_instance_id(ec2, instance_id)
       begin
         ec2.describe_instances(instance_id).first
@@ -42,7 +42,7 @@ module Awsam
         exit 1
       end
     end
-    
+
     def self.find_by_tag(ec2, instance_id)
       results = []
 
@@ -59,7 +59,7 @@ module Awsam
         puts "No tags by this name are available in your account"
         exit 1
       end
-      
+
       results.uniq! { |a| a[:resource_id] }
       results.sort! { |a,b| a[:value] <=> b[:value] }
 
@@ -87,7 +87,7 @@ module Awsam
         results.each_with_index do |elem, i|
           inst = rmap[elem[:resource_id]]
           puts "%d) %s (%s, %s, %s, %s)" %
-            [i, elem[:value], inst[:aws_instance_id],
+            [i+1, elem[:value], inst[:aws_instance_id],
              inst[:aws_instance_type],
              inst[:aws_availability_zone],
              inst[:aws_launch_time]]
@@ -99,7 +99,7 @@ module Awsam
         input = $stdin.gets
         puts
         exit unless input =~ /^\d+$/
-        node = results[input.to_i]
+        node = results[input.to_i-1]
       end
 
       return rmap[node[:resource_id]]
