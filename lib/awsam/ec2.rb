@@ -84,22 +84,46 @@ module Awsam
         puts "Please select which node you wish to use:"
         puts
 
+        namemax = 0
+        instmax = 0
+        ipmax = 0
         results.each_with_index do |elem, i|
           inst = rmap[elem[:resource_id]]
-          puts "%d) %s (%s, %s, %s, %s)" %
-            [i+1, elem[:value], inst[:aws_instance_id],
+          if elem[:value].length > namemax
+            namemax = elem[:value].length
+          end
+          if inst[:aws_instance_id].length > instmax
+            instmax = inst[:aws_instance_id].length
+          end
+          if inst[:private_ip_address].length > ipmax
+            ipmax =inst[:private_ip_address].length
+          end
+        end
+
+        countmax = results.size.to_s.length
+        results.each_with_index do |elem, i|
+          inst = rmap[elem[:resource_id]]
+
+          puts "%*d) %-*s (%*s %*s %11s %s %s)" %
+            [countmax, i + 1,
+             namemax, elem[:value],
+             instmax, inst[:aws_instance_id],
+             ipmax, inst[:private_ip_address],
              inst[:aws_instance_type],
              inst[:aws_availability_zone],
              inst[:aws_launch_time]]
         end
-        puts "q) Quit"
+        puts "%*s) Quit" % [countmax, "q"]
         puts
 
         print "> "
         input = $stdin.gets
         puts
         exit unless input =~ /^\d+$/
-        node = results[input.to_i-1]
+        sel = input.to_i
+        exit unless sel > 0 && sel <= results.size
+
+        node = results[sel - 1]
       end
 
       return rmap[node[:resource_id]]
