@@ -100,11 +100,12 @@ module Awsam
           end
         end
 
+        countmax = results.size.to_s.length
         results.each_with_index do |elem, i|
           inst = rmap[elem[:resource_id]]
 
-          puts "%2d) %-*s (%*s %*s %11s %s %s)" %
-            [i + 1,
+          puts "%*d) %-*s (%*s %*s %11s %s %s)" %
+            [countmax, i + 1,
              namemax, elem[:value],
              instmax, inst[:aws_instance_id],
              ipmax, inst[:private_ip_address],
@@ -112,7 +113,7 @@ module Awsam
              inst[:aws_availability_zone],
              inst[:aws_launch_time]]
         end
-        puts "q) Quit"
+        puts "%*s) Quit" % [countmax, "q"]
         puts
 
         print "> "
