@@ -84,10 +84,24 @@ module Awsam
         puts "Please select which node you wish to use:"
         puts
 
+        namemax = 0
+        instmax = 0
         results.each_with_index do |elem, i|
           inst = rmap[elem[:resource_id]]
-          puts "%d) %s (%s, %s, %s, %s)" %
-            [i+1, elem[:value], inst[:aws_instance_id],
+          if elem[:value].length > namemax
+            namemax = elem[:value].length
+          end
+          if inst[:aws_instance_id].length > instmax
+            instmax = inst[:aws_instance_id].length
+          end
+        end
+
+        results.each_with_index do |elem, i|
+          inst = rmap[elem[:resource_id]]
+          puts "%2d) %-*s (%*s %11s %s %s)" %
+            [i + 1,
+             namemax, elem[:value],
+             instmax, inst[:aws_instance_id],
              inst[:aws_instance_type],
              inst[:aws_availability_zone],
              inst[:aws_launch_time]]
