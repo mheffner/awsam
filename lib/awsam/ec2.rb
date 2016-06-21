@@ -113,7 +113,10 @@ module Awsam
         input = $stdin.gets
         puts
         exit unless input =~ /^\d+$/
-        node = results[input.to_i-1]
+        sel = input.to_i
+        exit unless sel > 0 && sel <= results.size
+
+        node = results[sel - 1]
       end
 
       return rmap[node[:resource_id]]
