@@ -86,6 +86,7 @@ module Awsam
 
         namemax = 0
         instmax = 0
+        ipmax = 0
         results.each_with_index do |elem, i|
           inst = rmap[elem[:resource_id]]
           if elem[:value].length > namemax
@@ -94,14 +95,19 @@ module Awsam
           if inst[:aws_instance_id].length > instmax
             instmax = inst[:aws_instance_id].length
           end
+          if inst[:private_ip_address].length > ipmax
+            ipmax =inst[:private_ip_address].length
+          end
         end
 
         results.each_with_index do |elem, i|
           inst = rmap[elem[:resource_id]]
-          puts "%2d) %-*s (%*s %11s %s %s)" %
+
+          puts "%2d) %-*s (%*s %*s %11s %s %s)" %
             [i + 1,
              namemax, elem[:value],
              instmax, inst[:aws_instance_id],
+             ipmax, inst[:private_ip_address],
              inst[:aws_instance_type],
              inst[:aws_availability_zone],
              inst[:aws_launch_time]]
