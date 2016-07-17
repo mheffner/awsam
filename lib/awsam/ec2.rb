@@ -104,14 +104,15 @@ module Awsam
         results.each_with_index do |elem, i|
           inst = rmap[elem[:resource_id]]
 
-          puts "%*d) %-*s (%*s %*s %11s %s %s)" %
+          launchtime = Time.parse(inst[:aws_launch_time])
+          puts "%*d) %-*s (%*s %-*s %-11s %s %s)" %
             [countmax, i + 1,
              namemax, elem[:value],
              instmax, inst[:aws_instance_id],
              ipmax, inst[:private_ip_address],
              inst[:aws_instance_type],
              inst[:aws_availability_zone],
-             inst[:aws_launch_time]]
+             launchtime.strftime("%Y-%m-%d")]
         end
         puts "%*s) Quit" % [countmax, "q"]
         puts
