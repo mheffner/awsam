@@ -52,7 +52,7 @@ unless inst
   exit 1
 end
 
-if inst[:aws_state] != "running"
+if inst.state.name != "running"
   puts "Instance #{instance_id} is not running, it's #{inst[:aws_state]}"
   exit 1
 end
@@ -62,7 +62,7 @@ hostname = Awsam::Ec2::instance_hostname(inst)
 puts "Logging in as #{user} to #{hostname}"
 puts
 
-key = acct.find_key(inst[:ssh_key_name])
+key = acct.find_key(inst.key_name)
 
 if key
   exec "ssh -i #{key.path} -o IdentitiesOnly=yes #{user}@#{hostname}"

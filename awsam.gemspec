@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'right_aws', '3.1.0'
+  spec.add_dependency 'aws-sdk', '~> 2.3.22'
   spec.add_dependency 'trollop', '2.0'
 
   spec.add_development_dependency "bundler", "~> 1.7"
