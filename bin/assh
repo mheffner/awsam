@@ -32,6 +32,11 @@ end
 user = "root"
 instance_id = ARGV[0]
 
+if ARGV.length < 1
+  puts "Usage: assh <host>"
+  exit 1
+end
+
 if instance_id.include?("@")
   (user, instance_id) = instance_id.split("@")
 elsif ENV['AWS_DEFAULT_USER'].to_s.length > 0
