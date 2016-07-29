@@ -32,6 +32,11 @@ end
 user = "root"
 instance_id = ARGV[0]
 
+if ARGV.length < 1
+  puts "Usage: assh <host>"
+  exit 1
+end
+
 if instance_id.include?("@")
   (user, instance_id) = instance_id.split("@")
 elsif ENV['AWS_DEFAULT_USER'].to_s.length > 0
@@ -52,7 +57,7 @@ unless inst
   exit 1
 end
 
-if inst[:aws_state] != "running"
+if inst.state.name != "running"
   puts "Instance #{instance_id} is not running, it's #{inst[:aws_state]}"
   exit 1
 end
@@ -62,7 +67,7 @@ hostname = Awsam::Ec2::instance_hostname(inst)
 puts "Logging in as #{user} to #{hostname}"
 puts
 
-key = acct.find_key(inst[:ssh_key_name])
+key = acct.find_key(inst.key_name)
 
 if key
   exec "ssh -i #{key.path} -o IdentitiesOnly=yes #{user}@#{hostname}"

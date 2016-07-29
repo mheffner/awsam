@@ -41,15 +41,15 @@ keyfile = nil
       exit 1
     end
 
-    if inst[:aws_state] != "running"
-      puts "Instance #{instance_id} is not running, it's #{inst[:aws_state]}"
+    if inst.state.name != "running"
+      puts "Instance #{instance_id} is not running, it's #{inst.state.name}"
       exit 1
     end
 
     hostname = Awsam::Ec2::instance_hostname(inst)
     args[i] = args[i].gsub(instance_id, hostname)
 
-    key = acct.find_key(inst[:ssh_key_name])
+    key = acct.find_key(inst.key_name)
     keyfile = key.path if key
     break
   end

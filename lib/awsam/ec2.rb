@@ -4,19 +4,14 @@ module Awsam
     LOOKUP_TAGS = ["Name", "aws:autoscaling:groupName", "AlsoKnownAs"].freeze
 
     def self.instance_hostname(inst)
-      hostname = inst[:dns_name]
-      # Are we in a VPC?
-      if inst[:vpc_id]
-        hostname = inst[:private_ip_address]
-      end
-      hostname
+      # Always use private IP address
+      inst.private_ip_address
     end
 
     def self.find_instance(acct, instance_id)
-      logger = Logger.new(File.open("/dev/null", "w"))
-      ec2 = RightAws::Ec2.new(acct.access_key, acct.secret_key,
-                              :logger => logger,
-                              :endpoint_url => acct.ec2_url)
+      ec2 = Aws::EC2::Client.new(:access_key_id => acct.access_key,
+                                 :secret_access_key => acct.secret_key,
+                                 :region => acct.aws_region)
 
       unless ec2
         puts "Unable to connect to EC2"
@@ -36,9 +31,10 @@ module Awsam
 
     def self.find_by_instance_id(ec2, instance_id)
       begin
-        ec2.describe_instances(instance_id).first
-      rescue RightAws::AwsError
-        puts "instance_id does not exist"
+        resp = ec2.describe_instances(:instance_ids => [instance_id])
+        resp.reservations.length > 0 ? resp.reservations[0].instances.first : nil
+      rescue => e
+        puts "error describing instance: #{instance_id}: #{e}"
         exit 1
       end
     end
@@ -46,11 +42,16 @@ module Awsam
     def self.find_by_tag(ec2, instance_id)
       results = []
 
-      ec2.describe_tags(:filters => {
-                          "resource-type" => "instance"
-                        }).each do |tag|
-        if LOOKUP_TAGS.include?(tag[:key]) &&
-            tag[:value].downcase.include?(instance_id.downcase)
+      params = {
+        :filters => [{
+                       :name => "resource-type",
+                       :values => ["instance"]
+                     }]
+      }
+      resp = ec2.describe_tags(params)
+      resp.tags.each do |tag|
+        if LOOKUP_TAGS.include?(tag.key) &&
+            tag.value.downcase.include?(instance_id.downcase)
           results << tag
         end
       end
@@ -60,18 +61,25 @@ module Awsam
         exit 1
       end
 
-      results.uniq! { |a| a[:resource_id] }
-      results.sort! { |a,b| a[:value] <=> b[:value] }
+      results.uniq! { |a| a.resource_id }
+      results.sort! { |a,b| a.value <=> b.value }
 
       rmap = {}
-      ec2.describe_instances(results.map{|a| a[:resource_id]},
-                             :filters => {
-                               "instance-state-name" => "running"
-                             }).each do |inst|
-        rmap[inst[:aws_instance_id]] = inst
+      params = {
+        :instance_ids => results.map{|a| a.resource_id},
+        :filters => [{
+                       :name => "instance-state-name",
+                       :values => ["running"]
+                     }]
+      }
+      resp = ec2.describe_instances(params)
+      resp.reservations.each do |resv|
+        resv.instances.each do |inst|
+          rmap[inst.instance_id] = inst
+        end
       end
 
-      results.reject! { |a| rmap[a[:resource_id]].nil? }
+      results.reject! { |a| rmap[a.resource_id].nil? }
 
       if results.length == 0
         puts "No running instances by that tag name are available"
@@ -88,30 +96,30 @@ module Awsam
         instmax = 0
         ipmax = 0
         results.each_with_index do |elem, i|
-          inst = rmap[elem[:resource_id]]
-          if elem[:value].length > namemax
-            namemax = elem[:value].length
+          inst = rmap[elem.resource_id]
+          if elem.value.length > namemax
+            namemax = elem.value.length
           end
-          if inst[:aws_instance_id].length > instmax
-            instmax = inst[:aws_instance_id].length
+          if inst.instance_id.length > instmax
+            instmax = inst.instance_id.length
           end
-          if inst[:private_ip_address].length > ipmax
-            ipmax =inst[:private_ip_address].length
+          if inst.private_ip_address.length > ipmax
+            ipmax = inst.private_ip_address.length
           end
         end
 
         countmax = results.size.to_s.length
         results.each_with_index do |elem, i|
-          inst = rmap[elem[:resource_id]]
+          inst = rmap[elem.resource_id]
 
-          launchtime = Time.parse(inst[:aws_launch_time])
+          launchtime = inst.launch_time
           puts "%*d) %-*s (%*s %-*s %-11s %s %s)" %
             [countmax, i + 1,
-             namemax, elem[:value],
-             instmax, inst[:aws_instance_id],
-             ipmax, inst[:private_ip_address],
-             inst[:aws_instance_type],
-             inst[:aws_availability_zone],
+             namemax, elem.value,
+             instmax, inst.instance_id,
+             ipmax, inst.private_ip_address,
+             inst.instance_type,
+             inst.placement.availability_zone,
              launchtime.strftime("%Y-%m-%d")]
         end
         puts "%*s) Quit" % [countmax, "q"]
@@ -127,7 +135,7 @@ module Awsam
         node = results[sel - 1]
       end
 
-      return rmap[node[:resource_id]]
+      return rmap[node.resource_id]
     end
   end
 end
