@@ -313,7 +313,7 @@ function __aem_use()
 	touch ${CREDENTIALS_FILE}
 	chmod 0600 ${CREDENTIALS_FILE}
 
-	echo "AWSAccessKeyId=${AWS_ACCESS_KEY_ID}"    > ${CREDENTIALS_FILE}
+	echo "AWSAccessKeyId=${AWS_ACCESS_KEY_ID}"   >| ${CREDENTIALS_FILE}
 	echo "AWSSecretKey=${AWS_SECRET_ACCESS_KEY}" >> ${CREDENTIALS_FILE}
 
 	return 0
