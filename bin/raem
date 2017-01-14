@@ -211,6 +211,11 @@ when :add_account
   secret_key = read_val("Secret key", (ENV['AMAZON_SECRET_ACCESS_KEY'] || ENV['AWS_SECRET_KEY']))
   aws_id = read_val("AWS ID", ENV['AMAZON_AWS_ID'])
 
+  if aws_id.match(/[0-9]+/).nil?
+    err "AWS ID must be the numerical account ID"
+    exit 1
+  end
+
   acct = Awsam::Account.new(short_name,
                             { :description => desc,
                               :access_key => access_key,
