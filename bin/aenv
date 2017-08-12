@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Local Variables:
+# mode: sh
+# End:
+
+if [ $# -lt 1 ]; then
+	echo "Usage: aenv cmd [arg1 arg2 ...]"
+	exit 1
+fi
+
+if [ -z "$AWSAM_ACTIVE_ACCOUNT" ]; then
+	echo "Must pick an account first with `aem use <>`"
+	exit 1
+fi
+
+ENV=$(raem --environ --account $AWSAM_ACTIVE_ACCOUNT --export)
+eval $ENV
+
+exec "$@"

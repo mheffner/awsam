@@ -103,6 +103,14 @@ optparse = OptionParser.new do|opts|
     $cmd = :environ_key
   end
 
+  opts.on('--export') do
+    $options[:set_export] = true
+  end
+
+  opts.on('--unset') do
+    $options[:unset_environ] = true
+  end
+
   opts.on('--init') do
     $cmd = :init
   end
@@ -176,7 +184,11 @@ when :environ
     end
   end
 
-  acct.print_environ
+  if $options[:unset_environ]
+    acct.print_unset_environ
+  else
+    acct.print_environ(!$options[:set_export].nil?)
+  end
 
 when :environ_key
   unless $options[:keyname]
