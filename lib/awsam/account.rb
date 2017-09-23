@@ -45,7 +45,15 @@ module Awsam
       end
     end
 
-    def print_environ
+    def print_unset_environ
+      Utils::bash_unset_environ(get_environ)
+    end
+
+    def print_environ(set_export)
+      Utils::bash_environ(get_environ, set_export)
+    end
+
+    def get_environ
       envs = {
         "AMAZON_ACCESS_KEY_ID"     => @params[:access_key],
         "AWS_ACCESS_KEY_ID"        => @params[:access_key],
@@ -60,8 +68,6 @@ module Awsam
 
         "EC2_URL"                  => ec2_url
       }
-
-      Utils::bash_environ(envs)
     end
 
     def find_key(name)

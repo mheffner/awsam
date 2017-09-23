@@ -9,10 +9,17 @@ module Awsam
       end
     end
 
-    # Print the appropriate environment variables set commands for bash
-    def self::bash_environ(envs)
+    # Unset each of the environ settings to clear the environ
+    def self.bash_unset_environ(envs)
       envs.each_pair do |k, v|
-        puts "export #{k}=\"#{v}\""
+        puts "unset #{k}"
+      end
+    end
+
+    # Print the appropriate environment variables set commands for bash
+    def self::bash_environ(envs, set_export = true)
+      envs.each_pair do |k, v|
+        puts "%s#{k}=\"#{v}\"" % [set_export ? "export " : ""]
       end
     end
 

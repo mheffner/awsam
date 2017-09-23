@@ -41,13 +41,20 @@ AWSAM supports both AWS' legacy [Java-based CLI tools](http://docs.aws.amazon.co
 
 ### Environment variables
 
-*AWS Account Manager* sets a variety of environment variables when
-selecting accounts and SSH keypairs. Some of these environment
-variables match the ones used by the Amazon EC2 CLI tools and some our
-unique to AWSAM. It is often convenient to use these environment
-variables in DevOPs scripts in place of hard-coded values -- allowing
-your scripts to be seamlessly used for staging and production
-environments simply by switching the active account with `aem`.
+*AWS Account Manager* will set a variety of environment variables when
+ you execute the `aenv` shell wrapper:
+
+    $ env | grep AMAZON_ACCESS
+    Exit 1
+    $ aenv env | grep AMAZON_ACCESS
+    AMAZON_ACCESS_KEY_ID=AK....
+
+Some of these environment variables match the ones used by the Amazon
+EC2 CLI tools and some our unique to AWSAM. It is often convenient to
+use these environment variables in DevOPs scripts in place of
+hard-coded values -- allowing your scripts to be seamlessly used for
+staging and production environments simply by switching the active
+account with `aem` and wrapping execution of the command with `aenv`.
 
 The environment variables set when selecting an account are:
 
@@ -62,6 +69,10 @@ set:
 
 * `AMAZON_SSH_KEY_NAME` - Name of the keypair.
 * `AMAZON_SSH_KEY_FILE` - Full path to the public key PEM file
+
+**NOTE:** As of version 0.2.0, these are no longer set in the shell
+  environment by default. You must run any command that requires AWS
+  access with the `aenv` wrapper.
 
 ### Updating
 
@@ -150,6 +161,16 @@ a default will place an asterisk next to the key name in the `aem
 list` output.
 
     $ aem key use --default my-key-name
+
+### aenv utility: wrap command execution with AWS environment
+
+The `aenv` utility will wrap execution of any command with the AWS
+environment variables matching the currently selected account. This
+allows you to securely propagate environment variables only to
+commands that should have access to the current environment. Just
+prefix your command execution with `aenv` like:
+
+    $ aenv aws s3 ls
 
 ### assh utility: SSH by instance ID
 

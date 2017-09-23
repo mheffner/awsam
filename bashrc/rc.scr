@@ -316,6 +316,11 @@ function __aem_use()
 	echo "AWSAccessKeyId=${AWS_ACCESS_KEY_ID}"   >| ${CREDENTIALS_FILE}
 	echo "AWSSecretKey=${AWS_SECRET_ACCESS_KEY}" >> ${CREDENTIALS_FILE}
 
+	# We're done, so clear the environment. This protects against
+	# leaking AWS creds to other apps.
+	UNSET_ENV=$(raem --environ --account $ACCT --unset)
+	eval $UNSET_ENV
+
 	return 0
 }
 
