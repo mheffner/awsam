@@ -1,20 +1,31 @@
-#!/bin/bash
+#!/usr/bin/env ruby
+
+$:.unshift File.join(File.dirname(__FILE__), '../lib')
+
+require 'awsam'
+
+if ARGV.length < 1
+  puts "Usage: aenv cmd [arg1 arg2 ...]"
+  exit 1
+end
+
+Awsam::Accounts::load!
+
+acct = Awsam::Accounts::active
+unless acct
+  puts "No active account. Use 'aem use <account name>' to select one"
+  exit 1
+end
+
+env = acct.get_environ
+
+env.each do |k, v|
+  ENV[k] = v.to_s
+end
+
+exec *ARGV
 
 # Local Variables:
-# mode: sh
+# mode: ruby
 # End:
 
-if [ $# -lt 1 ]; then
-	echo "Usage: aenv cmd [arg1 arg2 ...]"
-	exit 1
-fi
-
-if [ -z "$AWSAM_ACTIVE_ACCOUNT" ]; then
-	echo "Must pick an account first with `aem use <>`"
-	exit 1
-fi
-
-ENV=$(raem --environ --account $AWSAM_ACTIVE_ACCOUNT --export)
-eval $ENV
-
-exec "$@"
